@@ -1,10 +1,34 @@
-// Hybrid Authentication System - Supabase + Local Fallback
-// Compatible with existing local users and Supabase ready
+// Hybrid Authentication System - Vercel Compatible
+// Sistema que funciona tanto local quanto na Vercel, com ou sem Supabase
 
-// Importar configuração Supabase
-import { auth, logger, isConfigured } from '../../supabase-config.js';
+// Verificar se Supabase está disponível (configurado no HTML)
+const isSupabaseAvailable = () => {
+    return window.SUPABASE_READY && window.supabase;
+};
 
-// Usuários locais do sistema (fallback quando Supabase não configurado)
+// Função auxiliar para logs de segurança Supabase
+const logSupabaseSecurity = async (event, details) => {
+    if (isSupabaseAvailable()) {
+        try {
+            const { data, error } = await window.supabase
+                .from('security_logs')
+                .insert({
+                    event_type: event,
+                    details,
+                    user_id: (await window.supabase.auth.getUser()).data.user?.id,
+                    timestamp: new Date().toISOString(),
+                    ip_address: 'localhost',
+                    user_agent: navigator.userAgent
+                });
+            
+            if (error) console.warn('Erro ao salvar log Supabase:', error);
+        } catch (err) {
+            console.warn('Erro no log Supabase:', err);
+        }
+    }
+};
+
+// Usuários locais do sistema (sempre funcionam)
 const LOCAL_USERS = {
     // COORDENADORES
     'coord@clinica.com': { 
@@ -86,6 +110,9 @@ export async function login(username, password) {
         const now = Date.now();
         const userKey = username.toLowerCase().trim();
         
+        console.log('🔐 Tentativa de login:', userKey);
+        console.log('🟢 Supabase disponível:', isSupabaseAvailable());
+        
         // Verificar bloqueio por tentativas excessivas
         if (loginAttempts[userKey]) {
             const attempts = loginAttempts[userKey];
@@ -101,10 +128,14 @@ export async function login(username, password) {
             }
         }
         
-        // PRIMEIRA TENTATIVA: Supabase (se configurado)
-        if (isConfigured()) {
+        // PRIMEIRA TENTATIVA: Supabase (se disponível e configurado)
+        if (isSupabaseAvailable()) {
             try {
-                const { data, error } = await auth.signIn(userKey, password);
+                console.log('🔄 Tentando login Supabase...');
+                const { data, error } = await window.supabase.auth.signInWithPassword({
+                    email: userKey,
+                    password: password
+                });
                 
                 if (error) {
                     console.log('❌ Erro Supabase:', error.message);
@@ -135,12 +166,13 @@ export async function login(username, password) {
                     localStorage.setItem('isLoggedIn', 'true');
                     
                     // Log de segurança
-                    await logger.security('login_success', {
+                    await logSupabaseSecurity('login_success', {
                         email: userKey,
                         provider: 'supabase',
                         timestamp: now
                     });
                     
+                    console.log('✅ Login Supabase bem-sucedido!');
                     showNotification(`Bem-vindo(a), ${currentUser.name}!`, 'success');
                     return true;
                 }
@@ -148,11 +180,15 @@ export async function login(username, password) {
                 console.log('🔄 Supabase falhou, tentando login local...');
                 // Continua para tentativa local
             }
+        } else {
+            console.log('🟡 Supabase não disponível, usando login local');
         }
         
-        // SEGUNDA TENTATIVA: Usuários locais (fallback)
+        // SEGUNDA TENTATIVA: Usuários locais (sempre funciona)
         const user = LOCAL_USERS[userKey];
         if (user && user.password === password && user.active) {
+            console.log('✅ Login local bem-sucedido!');
+            
             // Login local bem-sucedido
             if (loginAttempts[userKey]) {
                 delete loginAttempts[userKey];
@@ -187,6 +223,8 @@ export async function login(username, password) {
         }
         
         // AMBOS FALHARAM - registrar tentativa
+        console.log('❌ Login falhou para:', userKey);
+        
         if (!loginAttempts[userKey]) {
             loginAttempts[userKey] = { count: 0, lastAttempt: 0 };
         }
@@ -274,9 +312,9 @@ export async function logout() {
         const user = getCurrentUser();
         
         // Logout do Supabase se estava usando
-        if (user?.provider === 'supabase' && isConfigured()) {
+        if (user?.provider === 'supabase' && isSupabaseAvailable()) {
             try {
-                await auth.signOut();
+                await window.supabase.auth.signOut();
             } catch (error) {
                 console.warn('Erro no logout Supabase:', error);
             }
@@ -284,8 +322,8 @@ export async function logout() {
         
         // Log de logout
         if (user) {
-            if (user.provider === 'supabase' && isConfigured()) {
-                await logger.security('logout', {
+            if (user.provider === 'supabase' && isSupabaseAvailable()) {
+                await logSupabaseSecurity('logout', {
                     email: user.email,
                     provider: 'supabase',
                     sessionDuration: Date.now() - user.loginTime,
@@ -346,11 +384,11 @@ export function canAccessResource(resource, action = 'read') {
     return false;
 }
 
-// Reset de senha (Supabase + fallback)
+// Reset de senha (apenas Supabase)
 export async function resetPassword(email) {
     try {
-        if (isConfigured()) {
-            const { error } = await auth.resetPassword(email);
+        if (isSupabaseAvailable()) {
+            const { error } = await window.supabase.auth.resetPasswordForEmail(email);
             if (error) throw error;
             
             showNotification('Email de reset enviado! Verifique sua caixa de entrada.', 'success');
@@ -369,14 +407,20 @@ export async function resetPassword(email) {
 // Criar usuário (apenas Supabase)
 export async function createUser(email, password, userData) {
     try {
-        if (!isConfigured()) {
+        if (!isSupabaseAvailable()) {
             throw new Error('Supabase não configurado');
         }
         
-        const { data, error } = await auth.signUp(email, password, {
-            name: userData.name,
-            role: userData.role,
-            permissions: userData.permissions
+        const { data, error } = await window.supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    name: userData.name,
+                    role: userData.role,
+                    permissions: userData.permissions
+                }
+            }
         });
         
         if (error) throw error;
@@ -420,6 +464,11 @@ function showNotification(message, type = 'info') {
         window.showNotification(message, type);
     } else {
         console.log(`[${type.toUpperCase()}] ${message}`);
+        
+        // Fallback: mostrar alert para erros importantes
+        if (type === 'error') {
+            alert(message);
+        }
     }
 }
 
@@ -427,8 +476,8 @@ function showNotification(message, type = 'info') {
 export const getUsers = () => LOCAL_USERS;
 
 // Configurar listener de mudanças de auth (Supabase)
-if (isConfigured()) {
-    auth.onAuthStateChange((event, session) => {
+if (isSupabaseAvailable()) {
+    window.supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             currentUser = null;
             localStorage.removeItem('currentUser');
@@ -439,6 +488,16 @@ if (isConfigured()) {
 
 // Inicialização
 console.log('🔐 Sistema de autenticação híbrido inicializado');
-console.log('🟢 Supabase:', isConfigured() ? 'Configurado' : 'Aguardando configuração');
+console.log('🟢 Supabase:', isSupabaseAvailable() ? 'Disponível' : 'Não configurado');
 console.log('📋 Usuários locais disponíveis:', Object.keys(LOCAL_USERS));
+
+// Disponibilizar funções globalmente para debug
+window.authDebug = {
+    checkSupabase: isSupabaseAvailable,
+    getLocalUsers: () => LOCAL_USERS,
+    getCurrentUser,
+    checkLogin,
+    login,
+    logout
+};
 

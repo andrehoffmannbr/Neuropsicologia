@@ -1504,44 +1504,74 @@
         </div>
     </div>
 
-    <!-- Supabase SDK via CDN -->
+    <!-- Supabase SDK via CDN (com fallback para Vercel) -->
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        
-        // Configuração Supabase (substitua pelas suas após criar projeto)
-        const supabaseUrl = 'https://your-project.supabase.co';
-        const supabaseAnonKey = 'your-anon-key';
-        
-        // Inicializar Supabase
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-        
-        // Disponibilizar globalmente para os módulos
-        window.supabase = supabase;
-        window.supabaseUrl = supabaseUrl;
-        window.supabaseKey = supabaseAnonKey;
-        
-        // Configurar para desenvolvimento/produção
-        window.SUPABASE_READY = supabaseUrl !== 'https://your-project.supabase.co';
-        window.USE_SUPABASE = window.SUPABASE_READY;
-        
-        if (window.SUPABASE_READY) {
-            console.log('🟢 Supabase inicializado - URL:', supabaseUrl);
-            console.log('🔑 Key configurada:', supabaseAnonKey.substring(0, 20) + '...');
-        } else {
-            console.log('🟡 Supabase aguardando configuração');
-            console.log('📋 Sistema funcionando em modo local');
+        try {
+            // Tentar importar Supabase
+            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            
+            // Configuração Supabase (obtida das variáveis de ambiente ou padrão)
+            const supabaseUrl = window.location.hostname === 'localhost' 
+                ? 'https://your-project.supabase.co'
+                : (window.ENV?.SUPABASE_URL || 'https://your-project.supabase.co');
+                
+            const supabaseAnonKey = window.location.hostname === 'localhost'
+                ? 'your-anon-key'
+                : (window.ENV?.SUPABASE_ANON_KEY || 'your-anon-key');
+            
+            // Inicializar Supabase se tiver credenciais válidas
+            if (supabaseUrl !== 'https://your-project.supabase.co' && supabaseAnonKey !== 'your-anon-key') {
+                const supabase = createClient(supabaseUrl, supabaseAnonKey);
+                
+                // Disponibilizar globalmente
+                window.supabase = supabase;
+                window.supabaseUrl = supabaseUrl;
+                window.supabaseKey = supabaseAnonKey;
+                window.SUPABASE_READY = true;
+                window.USE_SUPABASE = true;
+                
+                console.log('🟢 Supabase inicializado - URL:', supabaseUrl);
+                console.log('🔑 Key configurada:', supabaseAnonKey.substring(0, 20) + '...');
+                
+                // Verificar conectividade
+                supabase.auth.getSession().then(({ data, error }) => {
+                    if (error) {
+                        console.warn('⚠️ Erro ao conectar Supabase:', error.message);
+                        console.log('🔄 Fallback para modo local ativado');
+                        window.SUPABASE_READY = false;
+                    } else {
+                        console.log('✅ Supabase conectado com sucesso!');
+                    }
+                }).catch(err => {
+                    console.warn('⚠️ Erro de conectividade Supabase:', err);
+                    console.log('🔄 Fallback para modo local ativado');
+                    window.SUPABASE_READY = false;
+                });
+            } else {
+                // Configuração padrão (modo local)
+                window.SUPABASE_READY = false;
+                window.USE_SUPABASE = false;
+                console.log('🟡 Supabase não configurado');
+                console.log('📋 Sistema funcionando em modo local');
+            }
+        } catch (error) {
+            // Fallback se CDN falhar
+            console.warn('⚠️ Erro ao carregar Supabase SDK:', error);
+            console.log('🔄 Funcionando apenas em modo local');
+            
+            window.SUPABASE_READY = false;
+            window.USE_SUPABASE = false;
+            window.supabase = null;
         }
         
-        // Verificar conectividade
-        if (window.SUPABASE_READY) {
-            supabase.auth.getSession().then(({ data, error }) => {
-                if (error) {
-                    console.warn('⚠️ Erro ao conectar Supabase:', error.message);
-                } else {
-                    console.log('✅ Supabase conectado com sucesso!');
-                }
-            });
-        }
+        // Configurações globais do sistema
+        window.SYSTEM_CONFIG = {
+            supabaseReady: window.SUPABASE_READY || false,
+            environment: window.location.hostname === 'localhost' ? 'development' : 'production',
+            fallbackMode: !window.SUPABASE_READY
+        };
+        
+        console.log('🔧 Configuração do sistema:', window.SYSTEM_CONFIG);
     </script>
 
     <script type="importmap">
