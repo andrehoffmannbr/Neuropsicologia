@@ -10,9 +10,9 @@ console.log('🔧 Iniciando build para Vercel...');
 const htmlPath = path.join(__dirname, 'public', 'index.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
-// Obter variáveis de ambiente (usar as do vercel.json se não estiverem no process.env)
-const supabaseUrl = process.env.SUPABASE_URL || 'https://wltzckgdtvlhdmhyozsb.supabase.co';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdHpja2dkdHZsaGRtaHlvenNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MTUzNjEsImV4cCI6MjA1MTM5MTM2MX0.Ojs7E9Yc4J2qxkTTGKUEdjFhS0JfXHZBK-yWAhwlDXY';
+// Obter variáveis de ambiente (usando credenciais de exemplo até criar projeto real)
+const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'your-anon-key';
 
 console.log('📊 Configurações:');
 console.log('- Supabase URL:', supabaseUrl);
@@ -62,8 +62,9 @@ fs.writeFileSync(path.join(__dirname, 'public', '_headers'), headersContent);
 console.log('🔒 Headers de segurança configurados');
 
 // Verificar se as credenciais foram configuradas
-if (supabaseUrl.includes('wltzckgdtvlhdmhyozsb')) {
-    console.log('✅ Credenciais Supabase configuradas corretamente');
+if (supabaseUrl.includes('your-project')) {
+    console.log('🟡 Usando credenciais de exemplo - sistema funcionará em modo LOCAL');
+    console.log('💡 Para dados compartilhados, crie um projeto Supabase real');
 } else {
-    console.warn('⚠️ Usando credenciais padrão - verificar configuração');
+    console.log('✅ Credenciais Supabase configuradas corretamente');
 } 
