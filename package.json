@@ -1,0 +1,58 @@
+{
+  "name": "sistema-neuropsicologia-supabase",
+  "version": "2.0.0",
+  "description": "Sistema de Gestão de Clínica de Neuropsicologia com Supabase",
+  "main": "server-supabase.js",
+  "scripts": {
+    "dev": "python -m http.server 3000 --directory public",
+    "dev-win": "python -m http.server 3000 --directory public",
+    "dev-server": "nodemon server-supabase.js",
+    "start": "node server-supabase.js",
+    "serve": "npx http-server public -p 3000 -c-1",
+    "serve-express": "node server-supabase.js",
+    "build": "echo 'Build step - preparing for production'",
+    "test": "echo 'No tests configured yet'",
+    "init-db": "node init-supabase.js",
+    "migrate": "node migrate-to-supabase.js"
+  },
+  "keywords": [
+    "neuropsicologia",
+    "clínica",
+    "gestão",
+    "supabase",
+    "postgresql",
+    "sistema-de-gestao"
+  ],
+  "author": "Sistema de Neuropsicologia",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.2"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "local"
+  },
+  "homepage": ".",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

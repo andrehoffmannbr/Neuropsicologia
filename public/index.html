@@ -1,0 +1,1557 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Neuropsicologia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- In-System Notifications -->
+    <div id="notification-container" class="notification-container">
+        <!-- Notifications will be added here -->
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-form">
+            <!-- New: Login Badge -->
+            <div class="login-badge">
+                <img src="/a/bfd67732-2f24-42f1-874b-00a99805d87d" alt="System ID">
+            </div>
+            <h1>Sistema de Neuropsicologia</h1>
+            <p class="login-subtitle">Acesso Restrito</p>
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="username">Nome</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" style="display: none;">
+        <header>
+            <div class="header-top">
+                <h1>Sistema de Neuropsicologia</h1>
+                <div class="user-info">
+                    <span id="current-user-name"></span>
+                    <span id="current-user-role"></span>
+                    <button id="btn-logout" class="btn-logout">
+                        <i class="fa-solid fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+            <nav>
+                <button class="tab-button active" data-tab="cadastro">
+                    <i class="fa-solid fa-user-plus"></i> 
+                    <span>Cadastrar Cliente</span>
+                </button>
+                <button class="tab-button" data-tab="agenda">
+                    <i class="fa-solid fa-calendar-days"></i> 
+                    <span>Agenda do Dia</span>
+                </button>
+                <button class="tab-button coordinator-or-staff-only" data-tab="historico">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 
+                    <span>Todos os pacientes</span>
+                </button>
+                <button class="tab-button coordinator-or-staff-only" data-tab="relatorio-clientes">
+                    <i class="fa-solid fa-chart-pie"></i> 
+                    <span>Relatório de Clientes</span>
+                </button>
+                <button class="tab-button coordinator-or-staff-only" data-tab="documentos">
+                    <i class="fa-solid fa-folder-open"></i> 
+                    <span>Laudos</span>
+                </button>
+                <button class="tab-button intern-only" data-tab="meus-pacientes">
+                    <i class="fa-solid fa-user-heart"></i> 
+                    <span>Meus Pacientes</span>
+                </button>
+                <button class="tab-button coordinator-only" data-tab="financeiro">
+                    <i class="fa-solid fa-dollar-sign"></i> 
+                    <span>Financeiro</span>
+                </button>
+                <button class="tab-button coordinator-only" data-tab="estoque">
+                    <i class="fa-solid fa-boxes-stacked"></i> 
+                    <span>Estoque</span>
+                </button>
+                <button class="tab-button coordinator-only" data-tab="estagiarios">
+                    <i class="fa-solid fa-users"></i> 
+                    <span>Estagiários</span>
+                </button>
+            </nav>
+        </header>
+
+        <main>
+            <div id="tab-cadastro" class="tab-content active">
+                <h2>Cadastrar Novo Cliente</h2>
+                
+                <!-- Age Selection -->
+                <div class="age-selection">
+                    <label>
+                        <input type="radio" name="age-type" value="adult" checked>
+                        Maior de Idade (18+)
+                    </label>
+                    <label>
+                        <input type="radio" name="age-type" value="minor">
+                        Menor de Idade
+                    </label>
+                </div>
+
+                <!-- Adult Form -->
+                <form id="form-novo-cliente-adulto">
+                    <fieldset>
+                        <legend>Dados Pessoais</legend>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome-cliente-adulto">Nome Completo</label>
+                                <input type="text" id="nome-cliente-adulto" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="data-nascimento-adulto">Data de Nascimento</label>
+                                <input type="date" id="data-nascimento-adulto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="genero-adulto">Gênero</label>
+                                <select id="genero-adulto" required>
+                                    <option value="">Selecione</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="outro">Outro</op
+                                        tion>
+                                    <option value="nao-informar">Prefiro não informar</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cpf-cliente-adulto">CPF</label>
+                                <input type="text" id="cpf-cliente-adulto" placeholder="000.000.000-00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rg-adulto">RG</label>
+                                <input type="text" id="rg-adulto" placeholder="00.000.000-0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="naturalidade-adulto">Naturalidade</label>
+                                <input type="text" id="naturalidade-adulto" placeholder="Cidade/Estado">
+                            </div>
+                            <div class="form-group">
+                                <label for="estado-civil-adulto">Estado Civil</label>
+                                <select id="estado-civil-adulto">
+                                    <option value="">Selecione</option>
+                                    <option value="solteiro">Solteiro(a)</option>
+                                    <option value="casado">Casado(a)</option>
+                                    <option value="divorciado">Divorciado(a)</option>
+                                    <option value="viuvo">Viúvo(a)</option>
+                                    <option value="uniao-estavel">União Estável</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="escolaridade-adulto">Escolaridade</label>
+                                <select id="escolaridade-adulto">
+                                    <option value="">Selecione</option>
+                                    <option value="fundamental-incompleto">Ensino Fundamental Incompleto</option>
+                                    <option value="fundamental-completo">Ensino Fundamental Completo</option>
+                                    <option value="medio-incompleto">Ensino Médio Incompleto</option>
+                                    <option value="medio-completo">Ensino Médio Completo</option>
+                                    <option value="superior-incompleto">Ensino Superior Incompleto</option>
+                                    <option value="superior-completo">Ensino Superior Completo</option>
+                                    <option value="pos-graduacao">Pós-graduação</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="profissao-adulto">Profissão</label>
+                                <input type="text" id="profissao-adulto">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email-cliente-adulto">Email</label>
+                                <input type="email" id="email-cliente-adulto">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone-cliente-adulto">Telefone</label>
+                                <input type="tel" id="telefone-cliente-adulto" placeholder="(00) 90000-0000">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contato-emergencia-adulto">Contato de Emergência</label>
+                                <input type="text" id="contato-emergencia-adulto" placeholder="Nome e telefone">
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Endereço</legend>
+                        <div class="form-row">
+                            <div class="form-group cep-group">
+                                <label for="cep-cliente-adulto">CEP</label>
+                                <input type="text" id="cep-cliente-adulto" placeholder="00000-000">
+                                <small>Digite o CEP para preenchimento automático.</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-large">
+                                <label for="logradouro-cliente-adulto">Logradouro (Rua, Av.)</label>
+                                <input type="text" id="logradouro-cliente-adulto">
+                            </div>
+                            <div class="form-group form-group-small">
+                                <label for="numero-cliente-adulto">Número</label>
+                                <input type="text" id="numero-cliente-adulto">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="complemento-cliente-adulto">Complemento</label>
+                                <input type="text" id="complemento-cliente-adulto">
+                            </div>
+                            <div class="form-group">
+                                <label for="bairro-cliente-adulto">Bairro</label>
+                                <input type="text" id="bairro-cliente-adulto">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-large">
+                                <label for="cidade-cliente-adulto">Cidade</label>
+                                <input type="text" id="cidade-cliente-adulto">
+                            </div>
+                            <div class="form-group form-group-small">
+                                <label for="estado-cliente-adulto">Estado</label>
+                                <input type="text" id="estado-cliente-adulto">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Outras Informações</legend>
+                        <div class="form-group">
+                            <label for="observacoes-cliente-adulto">Observações Gerais</label>
+                            <textarea id="observacoes-cliente-adulto" rows="4"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-primary">Salvar Cliente</button>
+                </form>
+
+                <!-- Minor Form -->
+                <form id="form-novo-cliente-menor" style="display: none;">
+                    <fieldset>
+                        <legend>Dados Pessoais do Menor</legend>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome-cliente-menor">Nome Completo</label>
+                                <input type="text" id="nome-cliente-menor" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="data-nascimento-menor">Data de Nascimento</label>
+                                <input type="date" id="data-nascimento-menor" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="genero-menor">Gênero</label>
+                                <select id="genero-menor" required>
+                                    <option value="">Selecione</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="escola-menor">Nome da Escola</label>
+                                <input type="text" id="escola-menor">
+                            </div>
+                            <div class="form-group">
+                                <label for="tipo-escola-menor">Tipo de Escola</label>
+                                <select id="tipo-escola-menor">
+                                    <option value="">Selecione</option>
+                                    <option value="publica">Pública</option>
+                                    <option value="particular">Particular</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ano-escolar-menor">Ano Escolar</label>
+                                <select id="ano-escolar-menor">
+                                    <option value="">Selecione</option>
+                                    <option value="maternal">Maternal</option>
+                                    <option value="pre1">Pré I</option>
+                                    <option value="pre2">Pré II</option>
+                                    <option value="1ano">1º Ano</option>
+                                    <option value="2ano">2º Ano</option>
+                                    <option value="3ano">3º Ano</option>
+                                    <option value="4ano">4º Ano</option>
+                                    <option value="5ano">5º Ano</option>
+                                    <option value="6ano">6º Ano</option>
+                                    <option value="7ano">7º Ano</option>
+                                    <option value="8ano">8º Ano</option>
+                                    <option value="9ano">9º Ano</option>
+                                    <option value="1medio">1º Ano Médio</option>
+                                    <option value="2medio">2º Ano Médio</option>
+                                    <option value="3medio">3º Ano Médio</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Dados dos Pais/Responsáveis</legend>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome-pai">Nome do Pai</label>
+                                <input type="text" id="nome-pai">
+                            </div>
+                            <div class="form-group">
+                                <label for="idade-pai">Idade do Pai</label>
+                                <input type="number" id="idade-pai" min="18" max="100">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profissao-pai">Profissão do Pai</label>
+                                <input type="text" id="profissao-pai">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone-pai">Telefone do Pai</label>
+                                <input type="tel" id="telefone-pai" placeholder="(00) 90000-0000">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome-mae">Nome da Mãe</label>
+                                <input type="text" id="nome-mae">
+                            </div>
+                            <div class="form-group">
+                                <label for="idade-mae">Idade da Mãe</label>
+                                <input type="number" id="idade-mae" min="18" max="100">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profissao-mae">Profissão da Mãe</label>
+                                <input type="text" id="profissao-mae">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone-mae">Telefone da Mãe</label>
+                                <input type="tel" id="telefone-mae" placeholder="(00) 90000-0000">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="responsavel-financeiro">Responsável Financeiro</label>
+                                <select id="responsavel-financeiro">
+                                    <option value="">Selecione</option>
+                                    <option value="pai">Pai</option>
+                                    <option value="mae">Mãe</option>
+                                    <option value="ambos">Ambos</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="outro-responsavel">Outro Responsável (se aplicável)</label>
+                                <input type="text" id="outro-responsavel" placeholder="Nome e parentesco">
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Endereço</legend>
+                        <div class="form-row">
+                            <div class="form-group cep-group">
+                                <label for="cep-cliente-menor">CEP</label>
+                                <input type="text" id="cep-cliente-menor" placeholder="00000-000">
+                                <small>Digite o CEP para preenchimento automático.</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-large">
+                                <label for="logradouro-cliente-menor">Logradouro (Rua, Av.)</label>
+                                <input type="text" id="logradouro-cliente-menor">
+                            </div>
+                            <div class="form-group form-group-small">
+                                <label for="numero-cliente-menor">Número</label>
+                                <input type="text" id="numero-cliente-menor">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="complemento-cliente-menor">Complemento</label>
+                                <input type="text" id="complemento-cliente-menor">
+                            </div>
+                            <div class="form-group">
+                                <label for="bairro-cliente-menor">Bairro</label>
+                                <input type="text" id="bairro-cliente-menor">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-large">
+                                <label for="cidade-cliente-menor">Cidade</label>
+                                <input type="text" id="cidade-cliente-menor">
+                            </div>
+                            <div class="form-group form-group-small">
+                                <label for="estado-cliente-menor">Estado</label>
+                                <input type="text" id="estado-cliente-menor">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Outras Informações</legend>
+                        <div class="form-group">
+                            <label for="observacoes-cliente-menor">Observações Gerais</label>
+                            <textarea id="observacoes-cliente-menor" rows="4"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-primary">Salvar Cliente</button>
+                </form>
+            </div>
+
+            <div id="tab-agenda" class="tab-content">
+                <h2>Agenda do Dia - <span id="current-date"></span></h2>
+                <div class="agenda-controls">
+                    <div class="calendar-container">
+                        <input type="month" id="month-selector">
+                        <div id="calendar-grid" class="calendar-grid"></div>
+                    </div>
+                    <div class="agenda-actions">
+                        <input type="date" id="date-selector">
+                        <button id="btn-novo-agendamento" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Novo Agendamento
+                        </button>
+                    </div>
+                </div>
+                <div id="agenda-list">
+                    <!-- Agendamentos serão renderizados aqui -->
+                </div>
+            </div>
+
+            <div id="tab-historico" class="tab-content">
+                <h2>Todos os pacientes</h2>
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-cliente" placeholder="Buscar cliente por nome, CPF ou ID...">
+                </div>
+                <div id="client-list-container">
+                    <!-- A lista de clientes será renderizada aqui pelo JS -->
+                    <p>Nenhum cliente cadastrado ainda.</p>
+                </div>
+            </div>
+
+            <div id="tab-relatorio-clientes" class="tab-content">
+                <div class="client-report-header">
+                    <h2>Relatório Geral de Pacientes</h2>
+                    <div class="client-report-controls">
+                        <label for="client-report-period">Período de análise:</label>
+                        <select id="client-report-period" class="report-period-selector">
+                            <option value="all">Todos os períodos</option>
+                            <option value="current-month">Mês atual</option>
+                            <option value="last-3-months">Últimos 3 meses</option>
+                            <option value="last-6-months">Últimos 6 meses</option>
+                            <option value="current-year">Ano atual</option>
+                        </select>
+                        <button id="btn-update-client-report" class="btn-primary">
+                            <i class="fa-solid fa-refresh"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="client-report-dashboard">
+                    <div class="client-summary-grid">
+                        <div class="summary-card total-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Total de Clientes</h3>
+                                <span class="count" id="total-clients-count">0</span>
+                                <div class="card-meta">
+                                    <span>Cadastrados no sistema</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card adult-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Clientes Adultos</h3>
+                                <span class="count" id="adult-clients-count">0</span>
+                                <div class="card-meta">
+                                    <span>Maiores de 18 anos</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card minor-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-child"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Clientes Menores</h3>
+                                <span class="count" id="minor-clients-count">0</span>
+                                <div class="card-meta">
+                                    <span>Menores de 18 anos</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card active-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Clientes Ativos</h3>
+                                <span class="count" id="clients-with-appointments">0</span>
+                                <div class="card-meta">
+                                    <span>Com atendimentos registrados</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card inactive-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-user-clock"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Clientes Inativos</h3>
+                                <span class="count" id="clients-without-recent-appointments">0</span>
+                                <div class="card-meta">
+                                    <span>Sem atendimentos recentes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card scheduled-clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Com Agendamentos</h3>
+                                <span class="count" id="clients-with-schedules">0</span>
+                                <div class="card-meta">
+                                    <span>Agendamentos futuros</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="client-details-section">
+                        <h3>Detalhamento por Cliente - <span id="client-report-period-display">Todos os períodos</span></h3>
+                        <div class="client-report-details">
+                            <div id="client-report-list">
+                                <!-- Detalhes dos clientes serão renderizados aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-meus-pacientes" class="tab-content">
+                <h2>Meus Pacientes</h2>
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-meus-pacientes" placeholder="Buscar meus pacientes por nome, CPF ou ID...">
+                </div>
+                <div id="meus-pacientes-list">
+                    <!-- Lista de pacientes do estagiário será renderizada aqui -->
+                </div>
+            </div>
+
+            <div id="tab-financeiro" class="tab-content">
+                <div class="financial-header">
+                    <h2>Painel Financeiro</h2>
+                    <div class="financial-controls">
+                        <label for="financial-month-selector">Período:</label>
+                        <input type="month" id="financial-month-selector" class="month-selector">
+                        <button id="btn-update-financial" class="btn-primary">
+                            <i class="fa-solid fa-refresh"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="financial-dashboard">
+                    <div class="financial-summary-grid">
+                        <div class="summary-card revenue-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Receita Total</h3>
+                                <span class="amount" id="monthly-revenue">R$ 0,00</span>
+                                <div class="card-meta">
+                                    <span>Atendimentos: <span id="monthly-appointments">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card stock-entries-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-shopping-cart"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Despesas com Compras</h3>
+                                <span class="amount" id="stock-entries-value">R$ 0,00</span>
+                                <div class="card-meta">
+                                    <span>Materiais adquiridos</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card stock-exits-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-tools"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Custo de Materiais Usados</h3>
+                                <span class="amount" id="stock-exits-value">R$ 0,00</span>
+                                <div class="card-meta">
+                                    <span>Materiais utilizados em atendimentos</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card balance-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Resultado Líquido</h3>
+                                <span class="amount" id="net-result">R$ 0,00</span>
+                                <div class="card-meta">
+                                    <span>Receitas - Despesas Totais</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card clients-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Clientes Ativos</h3>
+                                <span class="count" id="active-clients">0</span>
+                                <div class="card-meta">
+                                    <span>Total cadastrados</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card appointments-card">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Agendamentos</h3>
+                                <span class="count" id="total-schedules">0</span>
+                                <div class="card-meta">
+                                    <span>No período</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="financial-notes-section">
+                        <h3>Notas Diárias</h3>
+                        <div class="daily-notes-controls">
+                            <button id="btn-add-daily-note" class="btn-primary">
+                                <i class="fa-solid fa-plus"></i> Adicionar Nota do Dia
+                            </button>
+                            <button id="btn-generate-monthly-report" class="btn-secondary">
+                                <i class="fa-solid fa-file-alt"></i> Gerar Relatório Mensal
+                            </button>
+                        </div>
+                        <div id="daily-notes-list">
+                            <!-- Daily notes will be rendered here -->
+                        </div>
+                    </div>
+                    
+                    <div class="financial-chart-section">
+                        <h3>Relatório Detalhado - <span id="financial-period-display"></span></h3>
+                        <div class="financial-details">
+                            <div id="financial-list">
+                                <!-- Detalhes financeiros serão renderizados aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-estoque" class="tab-content">
+                <h2>Controle de Estoque</h2>
+                <div class="stock-summary">
+                    <div class="summary-card">
+                        <h3>Itens em Estoque</h3>
+                        <span class="count" id="total-items">0</span>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Itens Baixo Estoque</h3>
+                        <span class="count" id="low-stock-items">0</span>
+                    </div>
+                </div>
+                <div class="stock-controls">
+                    <button id="btn-add-stock-item" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> Adicionar Item
+                    </button>
+                    <div class="stock-month-controls">
+                        <label for="stock-month-selector">Período das Movimentações:</label>
+                        <input type="month" id="stock-month-selector" class="month-selector">
+                        <button id="btn-update-stock-movements" class="btn-primary">
+                            <i class="fa-solid fa-refresh"></i> Filtrar
+                        </button>
+                        <button id="btn-clear-stock-filter" class="btn-secondary">
+                            <i class="fa-solid fa-times"></i> Limpar Filtro
+                        </button>
+                    </div>
+                </div>
+                <div id="stock-list">
+                    <!-- Lista de estoque será renderizada aqui -->
+                </div>
+                <div class="stock-history">
+                    <h3>Histórico de Movimentações</h3>
+                    <div id="stock-movements">
+                        <!-- Movimentações serão renderizadas aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-estagiarios" class="tab-content">
+                <h2>Gerenciar Estagiários</h2>
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-intern" placeholder="Buscar estagiário por nome...">
+                </div>
+                <!-- New: Button to add a new intern -->
+                <div class="intern-controls" style="margin-bottom: 24px;">
+                    <button id="btn-add-intern" class="btn-primary">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Novo Estagiário
+                    </button>
+                </div>
+                <div id="intern-list-container">
+                    <!-- Lista de estagiários será renderizada aqui -->
+                    <p>Nenhum estagiário cadastrado.</p>
+                </div>
+            </div>
+
+            <div id="tab-documentos" class="tab-content">
+                <h2>Gerenciar Documentos</h2>
+                <div class="documents-header">
+                    <div class="documents-controls">
+                        <button id="btn-add-general-document" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Adicionar Documento
+                        </button>
+                        <button id="btn-add-general-note" class="btn-primary">
+                            <i class="fa-solid fa-sticky-note"></i> Adicionar Nota
+                        </button>
+                    </div>
+                    <div class="documents-filter">
+                        <label for="documents-type-filter">Filtrar por tipo:</label>
+                        <select id="documents-type-filter">
+                            <option value="">Todos os tipos</option>
+                            <option value="documento">📄 Documentos</option>
+                            <option value="nota">📝 Notas</option>
+                            <option value="relatorio">📊 Relatórios</option>
+                            <option value="comprovante">💰 Comprovantes</option>
+                            <option value="outros">📦 Outros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-documents" placeholder="Buscar documentos por título ou descrição...">
+                </div>
+                <div id="general-documents-list">
+                    <!-- Lista de documentos será renderizada aqui -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Detalhes do Cliente -->
+    <div id="modal-detalhes-cliente" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2 id="modal-nome-cliente"></h2>
+            <div class="modal-details-grid">
+                <div>
+                    <h3>Dados Pessoais</h3>
+                    <p><strong>CPF:</strong> <span id="modal-cpf-cliente"></span></p>
+                    <p><strong>Data de Nasc.:</strong> <span id="modal-data-nascimento"></span></p>
+                    <p><strong>Email:</strong> <span id="modal-email-cliente"></span></p>
+                    <p><strong>Telefone:</strong> <span id="modal-telefone-cliente"></span></p>
+                    <p><strong>Responsável:</strong> <span id="modal-responsavel-cliente"></span></p>
+                </div>
+                 <div>
+                    <h3>Endereço</h3>
+                    <p><strong id="modal-logradouro-cliente"></strong>, <span id="modal-numero-cliente"></span></p>
+                    <p><span id="modal-bairro-cliente"></span></p>
+                    <p><span id="modal-cidade-estado-cliente"></span></p>
+                    <p><strong>CEP:</strong> <span id="modal-cep-cliente"></span></p>
+                </div>
+            </div>
+            <div class="modal-obs">
+                <h3>Observações</h3>
+                <p id="modal-observacoes-cliente"></p>
+            </div>
+
+            <div class="client-notes-section">
+                <h3>Notas do Cliente</h3>
+                <div id="client-notes-list">
+                    <!-- Notas serão preenchidas aqui -->
+                </div>
+                <button id="btn-add-note" class="btn-primary">Adicionar Nota</button>
+            </div>
+
+            <div class="client-documents-section">
+                <h3>Documentos Anexados</h3>
+                <div id="client-documents-list">
+                    <!-- Documentos serão preenchidos aqui -->
+                </div>
+                <button id="btn-add-document" class="btn-primary">Anexar Documento</button>
+            </div>
+
+            <hr>
+            <h3>Histórico de Atendimentos</h3>
+            <div id="historico-atendimentos">
+                <!-- Histórico será preenchido aqui -->
+            </div>
+            <button id="btn-novo-atendimento" class="btn-primary">Adicionar Novo Atendimento</button>
+            <button id="btn-edit-client" class="btn-primary" style="margin-left: 10px;">Editar Dados Pessoais</button>
+            <button id="btn-schedule-new-appointment" class="btn-primary" style="margin-left: 10px;">Agendar Novo Atendimento</button>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Cliente -->
+    <div id="modal-editar-cliente" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Editar Dados Pessoais</h2>
+            <form id="form-editar-cliente">
+                <div id="edit-form-container">
+                    <!-- Form fields will be populated dynamically -->
+                </div>
+                <button type="submit" class="btn-primary">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Nota -->
+    <div id="modal-add-note" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Nota</h2>
+            <form id="form-add-note">
+                <div class="form-group">
+                    <label for="note-title">Título da Nota</label>
+                    <input type="text" id="note-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="note-content">Conteúdo da Nota</label>
+                    <textarea id="note-content" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Nota</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Novo Atendimento -->
+    <div id="modal-novo-atendimento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Novo Atendimento</h2>
+            <form id="form-novo-atendimento">
+                <div class="form-group">
+                    <label for="data-atendimento">Data</label>
+                    <input type="date" id="data-atendimento" required>
+                </div>
+                <div class="form-group">
+                    <label for="select-anamnese">Tipo de Anamnese</label>
+                    <select id="select-anamnese" required>
+                        <!-- Opções de anamnese serão preenchidas aqui -->
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="notas-atendimento">Anotações</label>
+                    <textarea id="notas-atendimento" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="valor-atendimento">Valor do Atendimento (R$)</label>
+                    <input type="number" id="valor-atendimento" step="0.01" min="0">
+                </div>
+                <button type="submit" class="btn-primary">Salvar Atendimento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Agendamento -->
+    <div id="modal-editar-agendamento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Editar Agendamento</h2>
+            <form id="form-editar-agendamento">
+                <div class="form-group">
+                    <label for="edit-cliente-agenda">Cliente</label>
+                    <select id="edit-cliente-agenda" required>
+                        <option value="">Selecione um cliente</option>
+                        <!-- Clientes serão preenchidos aqui -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-data-agendamento">Data</label>
+                    <input type="date" id="edit-data-agendamento" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-hora-agendamento">Horário</label>
+                    <input type="time" id="edit-hora-agendamento" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-tipo-servico">Tipo de Serviço</label>
+                    <select id="edit-tipo-servico" required>
+                        <!-- Tipos de serviço serão preenchidos aqui -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-observacoes-agendamento">Observações</label>
+                    <textarea id="edit-observacoes-agendamento" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Documento -->
+    <div id="modal-add-document" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Anexar Documento</h2>
+            <form id="form-add-document">
+                <div class="form-group">
+                    <label for="document-title">Título do Documento</label>
+                    <input type="text" id="document-title" required placeholder="Ex: Comprovante de Pagamento - Janeiro/2024">
+                </div>
+                <div class="form-group">
+                    <label for="document-type">Tipo de Documento</label>
+                    <select id="document-type" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="pagamento">💰 Comprovante de Pagamento</option>
+                        <option value="laudo">📝 Laudo Médico</option>
+                        <option value="receita">📄 Receita Médica</option>
+                        <option value="exame">📊 Resultado de Exame</option>
+                        <option value="relatorio">📋 Relatório de Atendimento</option>
+                        <option value="outros">📦 Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="document-file">Arquivo</label>
+                    <input type="file" id="document-file" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <small>Formatos aceitos: PDF, JPG, PNG, DOC, DOCX (máx. 5MB)</small>
+                </div>
+                <div class="form-group">
+                    <label for="document-description">Descrição (opcional)</label>
+                    <textarea id="document-description" rows="3" placeholder="Observações sobre o documento..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Documento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Novo Agendamento -->
+    <div id="modal-novo-agendamento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Novo Agendamento</h2>
+            <form id="form-novo-agendamento">
+                <div class="form-group">
+                    <label for="select-cliente-agenda">Cliente</label>
+                    <select id="select-cliente-agenda" required>
+                        <option value="">Selecione um cliente</option>
+                        <!-- Clientes serão preenchidos aqui -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data-agendamento">Data</label>
+                    <input type="date" id="data-agendamento" required>
+                </div>
+                <div class="form-group">
+                    <label for="hora-agendamento">Horário</label>
+                    <input type="time" id="hora-agendamento" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipo-servico">Tipo de Serviço</label>
+                    <select id="tipo-servico" required>
+                        <!-- Tipos de serviço serão preenchidos aqui -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="select-assigned-professional">Profissional Responsável</label>
+                    <select id="select-assigned-professional">
+                        <option value="">Nenhum (selecione)</option>
+                        <!-- Usuários (funcionários e estagiários) serão preenchidos aqui -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="observacoes-agendamento">Observações</label>
+                    <textarea id="observacoes-agendamento" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Agendar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Cancelar Agendamento -->
+    <div id="modal-cancelar-agendamento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Cancelar Agendamento</h2>
+            <form id="form-cancelar-agendamento">
+                <div class="form-group">
+                    <label for="motivo-cancelamento">Motivo do Cancelamento</label>
+                    <textarea id="motivo-cancelamento" rows="4" required placeholder="Digite o motivo do cancelamento..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imagem-cancelamento">Comprovante (opcional)</label>
+                    <input type="file" id="imagem-cancelamento" accept="image/*">
+                    <small>Anexe uma imagem caso tenha comprovante da conversa (WhatsApp, SMS, etc.)</small>
+                </div>
+                <div id="preview-imagem-cancelamento" style="display: none; margin-top: 10px;">
+                    <img id="img-preview-cancelamento" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid var(--border-color);">
+                </div>
+                <button type="submit" class="btn-primary">Confirmar Cancelamento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Confirmar Atendimento -->
+    <div id="modal-confirmar-atendimento" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Confirmar Atendimento</h2>
+            <p id="confirm-attendance-client-info" class="modal-client-info"></p>
+            <form id="form-confirmar-atendimento">
+                <div class="form-group">
+                    <label for="profissional-responsavel">Profissional Responsável</label>
+                    <input type="text" id="profissional-responsavel" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="observacoes-confirmacao">Observações do Atendimento</label>
+                    <textarea id="observacoes-confirmacao" rows="3" placeholder="Descreva como foi o atendimento..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="valor-atendimento-confirmacao">Valor do Atendimento (R$)</label>
+                    <input type="number" id="valor-atendimento-confirmacao" step="0.01" min="0">
+                </div>
+
+                <fieldset>
+                    <legend>Materiais Utilizados</legend>
+                    <div id="materials-selection">
+                        <!-- Materiais serão carregados aqui -->
+                    </div>
+                    <button type="button" id="btn-add-material" class="btn-secondary">
+                        <i class="fa-solid fa-plus"></i> Adicionar Material
+                    </button>
+                </fieldset>
+
+                <div class="form-group">
+                    <label for="anexos-confirmacao">Anexar Documentos (opcional)</label>
+                    <input type="file" id="anexos-confirmacao" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <small>Formatos aceitos: PDF, JPG, PNG, DOC, DOCX</small>
+                </div>
+
+                <button type="submit" class="btn-primary">Confirmar Atendimento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Item ao Estoque -->
+    <div id="modal-add-stock" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Item ao Estoque</h2>
+            <form id="form-add-stock">
+                <div class="form-group">
+                    <label for="stock-item-name">Nome do Item</label>
+                    <input type="text" id="stock-item-name" required placeholder="Ex: Lápis HB">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stock-item-category">Categoria</label>
+                        <select id="stock-item-category" required>
+                            <option value="">Selecione</option>
+                            <option value="papelaria">Papelaria</option>
+                            <option value="testes">Testes Neuropsicológicos</option>
+                            <option value="brinquedos">Brinquedos Terapêuticos</option>
+                            <option value="jogos">Jogos e Quebra-cabeças</option>
+                            <option value="tecnologia">Equipamentos Tecnológicos</option>
+                            <option value="consumiveis">Materiais Consumíveis</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock-item-quantity">Quantidade</label>
+                        <input type="number" id="stock-item-quantity" required min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stock-item-min-stock">Estoque Mínimo</label>
+                        <input type="number" id="stock-item-min-stock" required min="0" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="stock-item-unit">Unidade</label>
+                        <select id="stock-item-unit" required>
+                            <option value="unidade">Unidade</option>
+                            <option value="pacote">Pacote (5 unidades)</option>
+                            <option value="caixa">Caixa (10 unidades)</option>
+                            <option value="resma">Resma (15 unidades)</option>
+                            <option value="kit">Kit (20 unidades)</option>
+                            <option value="lote">Lote (25 unidades)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="stock-item-unit-value">Valor por Unidade (R$)</label>
+                    <input type="number" id="stock-item-unit-value" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="stock-item-description">Descrição (opcional)</label>
+                    <textarea id="stock-item-description" rows="3" placeholder="Descrição detalhada do item..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Adicionar ao Estoque</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Ajustar Estoque -->
+    <div id="modal-adjust-stock" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2 id="adjust-stock-title">Ajustar Estoque</h2>
+            <form id="form-adjust-stock">
+                <div class="form-group">
+                    <label for="adjust-stock-quantity" id="adjust-stock-quantity-label">Quantidade</label>
+                    <input type="number" id="adjust-stock-quantity" min="1" required>
+                    <small id="adjust-stock-unit-info"></small>
+                </div>
+                <div class="form-group">
+                    <label for="adjust-stock-reason">Motivo da movimentação</label>
+                    <input type="text" id="adjust-stock-reason" required placeholder="Digite o motivo...">
+                </div>
+                <button type="submit" class="btn-primary" id="adjust-stock-submit-btn">Confirmar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Confirmação de Exclusão -->
+    <div id="modal-confirm-delete" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-small">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Confirmar Exclusão</h2>
+            <p id="delete-confirmation-message"></p>
+            <div class="modal-actions">
+                <button id="btn-confirm-delete" class="btn-danger">Excluir</button>
+                <button id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Novo Modal para Redirecionar Agendamento -->
+    <div id="modal-reassign-schedule" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-small">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Redirecionar Agendamento</h2>
+            <p id="reassign-schedule-info" class="modal-client-info"></p>
+            <form id="form-reassign-schedule">
+                <div class="form-group">
+                    <label for="select-assigned-user">Atribuir a Profissional</label>
+                    <select id="select-assigned-user" required>
+                        <option value="">Selecione um profissional</option>
+                        <!-- Usuários (funcionários e estagiários) serão preenchidos aqui -->
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Confirmar Redirecionamento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Novo Modal para Detalhes do Estagiário -->
+    <div id="modal-detalhes-estagiario" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2 id="modal-nome-estagiario"></h2>
+            <div class="modal-details-grid">
+                <div>
+                    <h3>Dados Pessoais</h3>
+                    <p><strong>Nome Completo:</strong> <span id="intern-modal-nome-completo"></span></p>
+                    <p><strong>CPF:</strong> <span id="intern-modal-cpf"></span></p>
+                    <p><strong>Celular:</strong> <span id="intern-modal-celular"></span></p>
+                    <p><strong>Email:</strong> <span id="intern-modal-email"></span></p>
+                    <p><strong>Endereço:</strong> <span id="intern-modal-endereco"></span></p>
+                </div>
+                <div>
+                    <h3>Formação e Acadêmico</h3>
+                    <p><strong>Instituição de Ensino:</strong> <span id="intern-modal-instituicao"></span></p>
+                    <p><strong>Período da Graduação:</strong> <span id="intern-modal-periodo"></span></p>
+                    <p><strong>Formação:</strong> <span id="intern-modal-formacao"></span></p>
+                    <p><strong>Disciplina:</strong> <span id="intern-modal-disciplina"></span></p>
+                </div>
+            </div>
+            <hr>
+            <h3>Pacientes Atendidos</h3>
+            <div id="intern-patients-list">
+                <!-- Lista de pacientes atendidos pelo estagiário será preenchida aqui -->
+            </div>
+            <div class="change-history-section" style="margin-top: 20px;">
+                <h3>Histórico de Alterações</h3>
+                <div id="intern-change-history-list">
+                    <!-- Histórico de alterações do estagiário será preenchido aqui -->
+                </div>
+            </div>
+            <button id="btn-edit-intern" class="btn-primary" style="margin-top: 20px;">Editar Dados Cadastrais</button>
+            <!-- NEW: Delete Intern Button -->
+            <button id="btn-delete-intern" class="btn-danger" style="margin-top: 20px; margin-left: 10px;">Excluir Estagiário</button>
+        </div>
+    </div>
+
+    <!-- Novo Modal para Editar Estagiário -->
+    <div id="modal-editar-estagiario" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Editar Dados do Estagiário</h2>
+            <form id="form-editar-estagiario">
+                <div class="edit-form-section">
+                    <h4>Dados Pessoais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-intern-name">Nome Completo</label>
+                            <input type="text" id="edit-intern-name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-intern-cpf">CPF</label>
+                            <input type="text" id="edit-intern-cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-intern-phone">Celular</label>
+                            <input type="tel" id="edit-intern-phone" placeholder="(00) 90000-0000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-intern-email">Email</label>
+                        <input type="email" id="edit-intern-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-intern-address">Endereço</label>
+                        <input type="text" id="edit-intern-address" placeholder="Rua, Número, Bairro, Cidade/Estado">
+                    </div>
+                </div>
+                
+                <div class="edit-form-section">
+                    <h4>Formação e Acadêmico</h4>
+                    <div class="form-group">
+                        <label for="edit-intern-institution">Instituição de Ensino</label>
+                        <input type="text" id="edit-intern-institution">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-intern-graduation-period">Período da Graduação</label>
+                            <input type="text" id="edit-intern-graduation-period" placeholder="Ex: 5º Semestre">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-intern-education">Formação</label>
+                            <input type="text" id="edit-intern-education" placeholder="Ex: Psicologia">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-intern-discipline">Disciplina (ou Área de Atuação)</label>
+                        <input type="text" id="edit-intern-discipline" placeholder="Ex: Neuropsicologia Infantil">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Novo Modal para Adicionar Estagiário -->
+    <div id="modal-add-intern" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Novo Estagiário</h2>
+            <form id="form-add-intern">
+                <fieldset>
+                    <legend>Dados de Acesso</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-intern-username">Usuário</label>
+                            <input type="text" id="new-intern-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-intern-password">Senha</label>
+                            <input type="password" id="new-intern-password" required>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Dados Pessoais</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-intern-name">Nome Completo</label>
+                            <input type="text" id="new-intern-name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-intern-cpf">CPF</label>
+                            <input type="text" id="new-intern-cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-intern-phone">Celular</label>
+                            <input type="tel" id="new-intern-phone" placeholder="(00) 90000-0000">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-intern-email">Email</label>
+                            <input type="email" id="new-intern-email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-intern-address">Endereço</label>
+                        <input type="text" id="new-intern-address" placeholder="Rua, Número, Bairro, Cidade/Estado">
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Formação e Acadêmico</legend>
+                    <div class="form-group">
+                        <label for="new-intern-institution">Instituição de Ensino</label>
+                        <input type="text" id="new-intern-institution">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-intern-graduation-period">Período da Graduação</label>
+                            <input type="text" id="new-intern-graduation-period" placeholder="Ex: 5º Semestre">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-intern-education">Formação</label>
+                            <input type="text" id="new-intern-education" placeholder="Ex: Psicologia">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-intern-discipline">Disciplina (ou Área de Atuação)</label>
+                        <input type="text" id="new-intern-discipline" placeholder="Ex: Neuropsicologia Infantil">
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="btn-primary">Cadastrar Estagiário</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Nota Diária -->
+    <div id="modal-add-daily-note" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Nota Diária</h2>
+            <form id="form-add-daily-note">
+                <div class="form-group">
+                    <label for="daily-note-date">Data</label>
+                    <input type="date" id="daily-note-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="daily-note-title">Título</label>
+                    <input type="text" id="daily-note-title" required placeholder="Ex: Compra de materiais, Pagamento estagiário">
+                </div>
+                <div class="form-group">
+                    <label for="daily-note-type">Tipo</label>
+                    <select id="daily-note-type" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="receita">💰 Receita</option>
+                        <option value="despesa">💸 Despesa</option>
+                        <option value="observacao">📝 Observação</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="daily-note-value">Valor (R$) - opcional</label>
+                    <input type="number" id="daily-note-value" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="daily-note-content">Descrição</label>
+                    <textarea id="daily-note-content" rows="4" required placeholder="Descreva os detalhes da movimentação financeira..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="daily-note-file">Anexar Arquivo (opcional)</label>
+                    <input type="file" id="daily-note-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <small>Formatos aceitos: PDF, JPG, PNG, DOC, DOCX (máx. 5MB)</small>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Nota</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Relatório Mensal -->
+    <div id="modal-monthly-report" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-large">
+            <button class="modal-close-btn">&times;</button>
+            <div class="monthly-report-header">
+                <h2>Relatório Financeiro Mensal</h2>
+                <div class="report-controls">
+                    <label for="report-month-selector">Mês:</label>
+                    <input type="month" id="report-month-selector" class="month-selector">
+                    <button id="btn-update-monthly-report" class="btn-primary">
+                        <i class="fa-solid fa-refresh"></i> Atualizar
+                    </button>
+                    <button id="btn-print-report" class="btn-secondary">
+                        <i class="fa-solid fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+            <div id="monthly-report-content">
+                <!-- Monthly report content will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Documento Geral -->
+    <div id="modal-add-general-document" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Documento Geral</h2>
+            <form id="form-add-general-document">
+                <div class="form-group">
+                    <label for="general-document-title">Título do Documento</label>
+                    <input type="text" id="general-document-title" required placeholder="Ex: Contrato de Estágio - João Silva">
+                </div>
+                <div class="form-group">
+                    <label for="general-document-type">Tipo de Documento</label>
+                    <select id="general-document-type" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="documento">📄 Documento</option>
+                        <option value="relatorio">📊 Relatório</option>
+                        <option value="comprovante">💰 Comprovante</option>
+                        <option value="contrato">📋 Contrato</option>
+                        <option value="outros">📦 Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="general-document-file">Arquivo</label>
+                    <input type="file" id="general-document-file" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <small>Formatos aceitos: PDF, JPG, PNG, DOC, DOCX (máx. 5MB)</small>
+                </div>
+                <div class="form-group">
+                    <label for="general-document-description">Descrição (opcional)</label>
+                    <textarea id="general-document-description" rows="3" placeholder="Observações sobre o documento..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Documento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar Nota Geral -->
+    <div id="modal-add-general-note" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Adicionar Nota Geral</h2>
+            <form id="form-add-general-note">
+                <div class="form-group">
+                    <label for="general-note-title">Título da Nota</label>
+                    <input type="text" id="general-note-title" required placeholder="Ex: Reunião de equipe - 26/06/2025">
+                </div>
+                <div class="form-group">
+                    <label for="general-note-type">Tipo de Nota</label>
+                    <select id="general-note-type" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="nota">📝 Nota</option>
+                        <option value="lembrete">🔔 Lembrete</option>
+                        <option value="procedimento">📋 Procedimento</option>
+                        <option value="observacao">👁️ Observação</option>
+                        <option value="outros">📦 Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="general-note-content">Conteúdo da Nota</label>
+                    <textarea id="general-note-content" rows="6" required placeholder="Escreva o conteúdo da nota..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Salvar Nota</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase SDK via CDN -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        // Configuração Supabase (substitua pelas suas após criar projeto)
+        const supabaseUrl = 'https://your-project.supabase.co';
+        const supabaseAnonKey = 'your-anon-key';
+        
+        // Inicializar Supabase
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        
+        // Disponibilizar globalmente para os módulos
+        window.supabase = supabase;
+        window.supabaseUrl = supabaseUrl;
+        window.supabaseKey = supabaseAnonKey;
+        
+        // Configurar para desenvolvimento/produção
+        window.SUPABASE_READY = supabaseUrl !== 'https://your-project.supabase.co';
+        window.USE_SUPABASE = window.SUPABASE_READY;
+        
+        if (window.SUPABASE_READY) {
+            console.log('🟢 Supabase inicializado - URL:', supabaseUrl);
+            console.log('🔑 Key configurada:', supabaseAnonKey.substring(0, 20) + '...');
+        } else {
+            console.log('🟡 Supabase aguardando configuração');
+            console.log('📋 Sistema funcionando em modo local');
+        }
+        
+        // Verificar conectividade
+        if (window.SUPABASE_READY) {
+            supabase.auth.getSession().then(({ data, error }) => {
+                if (error) {
+                    console.warn('⚠️ Erro ao conectar Supabase:', error.message);
+                } else {
+                    console.log('✅ Supabase conectado com sucesso!');
+                }
+            });
+        }
+    </script>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm",
+            "./js/": "./js/"
+        }
+    }
+    </script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

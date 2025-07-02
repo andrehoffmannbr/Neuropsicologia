@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "228322686209",
+    "project_id": "neuro-897dc",
+    "storage_bucket": "neuro-897dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228322686209:android:08521151240ac828931700",
+        "android_client_info": {
+          "package_name": "com.company.dombosco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT16aGFbUVA7juhgtPdu7FLiq3qAr6uME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

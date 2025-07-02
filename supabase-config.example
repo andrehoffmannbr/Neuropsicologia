@@ -1,0 +1,37 @@
+# Configuração Supabase - Sistema de Neuropsicologia
+
+# URL do projeto Supabase
+SUPABASE_URL=https://your-project-id.supabase.co
+
+# Chave pública (anon key) - usada no frontend
+SUPABASE_ANON_KEY=your-anon-key-here
+
+# Chave de serviço (service role key) - usada no backend
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Configurações do servidor
+PORT=3000
+NODE_ENV=development
+
+# =============================================
+# INSTRUÇÕES PARA OBTER AS CHAVES SUPABASE:
+# =============================================
+#
+# 1. Acesse: https://app.supabase.com
+# 2. Faça login ou crie uma conta
+# 3. Clique em "New Project"
+# 4. Escolha uma organização
+# 5. Preencha:
+#    - Nome: "Sistema Neuropsicologia"
+#    - Database Password: (gere uma senha forte)
+#    - Region: South America (São Paulo)
+# 6. Aguarde a criação do projeto (2-3 minutos)
+# 7. Na dashboard do projeto:
+#    - Vá em Settings > API
+#    - Copie a "URL" para SUPABASE_URL
+#    - Copie "anon public" para SUPABASE_ANON_KEY
+#    - Copie "service_role" para SUPABASE_SERVICE_ROLE_KEY
+#
+# =============================================
+#
+# COPIE ESTE ARQUIVO PARA .env E PREENCHA COM SUAS CREDENCIAIS 
