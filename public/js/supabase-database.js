@@ -3,8 +3,12 @@
 
 // Verificar se estamos na Vercel com Supabase configurado
 const isSupabaseAvailable = () => {
-    return window.SUPABASE_READY && window.supabase && 
-           window.ENV?.SUPABASE_URL && window.ENV.SUPABASE_URL !== 'https://your-project.supabase.co';
+    const hasSupabase = window.SUPABASE_READY && window.supabase;
+    const hasValidConfig = window.ENV?.SUPABASE_URL && 
+                          window.ENV.SUPABASE_URL.includes('supabase.co') && 
+                          !window.ENV.SUPABASE_URL.includes('your-project');
+    
+    return hasSupabase && hasValidConfig;
 };
 
 // Log para debug
