@@ -1,5 +1,5 @@
 // Main application entry point
-import { loadDb, saveDb, db, loadClientsHybrid, loadSchedulesHybrid, getDBStatus } from './database.js';
+import { loadDb, saveDb, db, loadClientsHybrid, loadSchedulesHybrid, getDBStatus, initializeDatabase } from './database-supabase.js';
 import { login, logout, checkLogin, getCurrentUser } from './auth.js';
 import { showLoginScreen, showMainApp, switchTab, updateCurrentDate } from './ui.js';
 import { renderClientList, showClientDetails, addClientNote, addClientDocument, deleteClientDocument, renderMeusPacientes, renderClientReport } from './clients.js';
@@ -69,34 +69,23 @@ async function initializeApp() {
     switchTab('cadastro');
 }
 
-// Carregar dados do Supabase quando disponível
+// Carregar dados do Supabase
 async function loadDataFromSupabase() {
     try {
-        const status = getDBStatus();
-        console.log(`🔄 Carregando dados (${status.mode})...`);
+        console.log('🔄 Inicializando banco de dados Supabase...');
         
-        if (status.isOnline) {
-            // Carregar clientes do Supabase
-            const clientsResult = await loadClientsHybrid();
-            if (clientsResult.success) {
-                console.log(`✅ ${db.clients.length} clientes carregados do Supabase`);
-            }
-            
-            // Carregar agendamentos do Supabase
-            const schedulesResult = await loadSchedulesHybrid();
-            if (schedulesResult.success) {
-                console.log(`✅ ${db.schedules.length} agendamentos carregados do Supabase`);
-            }
-            
-            // Mostrar notificação de sincronização
-            showNotification('🔄 Dados sincronizados com o servidor!', 'success');
-        } else {
-            console.log('📱 Modo offline - usando dados locais');
-            showNotification('📱 Modo offline - dados salvos localmente', 'info');
-        }
+        // Inicializar banco de dados - carrega tudo de uma vez
+        await initializeDatabase();
+        
+        // Mostrar notificação de sucesso
+        showNotification('✅ Dados carregados do Supabase!', 'success');
+        
+        console.log(`✅ Sistema inicializado: ${db.clients.length} clientes, ${db.schedules.length} agendamentos`);
+        
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        showNotification('⚠️ Erro ao sincronizar dados', 'warning');
+        console.error('❌ Erro ao carregar dados do Supabase:', error);
+        showNotification('❌ Erro: Sistema requer conexão online', 'error');
+        throw error;
     }
 }
 

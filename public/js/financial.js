@@ -1,5 +1,5 @@
 // Financial reporting module
-import { db } from './database.js';
+import { db } from './database-supabase.js';
 import { getCurrentUser } from './auth.js';
 
 export function renderFinancialReport(selectedMonthYear = null) {

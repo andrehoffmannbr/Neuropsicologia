@@ -1,5 +1,8 @@
-// Form handling module
-import { db, saveDb, saveClientHybrid } from './database.js';
+// Formulários do Sistema - APENAS SUPABASE
+// Versão sem localStorage - usa apenas banco de dados
+
+import { database } from './supabase-database.js';
+import { db } from './database-supabase.js';
 import { renderClientList } from './clients.js';
 import { switchTab } from './ui.js';
 import { showNotification } from './ui.js';
@@ -17,8 +20,8 @@ function setupAgeSelection() {
     const minorForm = document.getElementById('form-novo-cliente-menor');
     
     ageRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            if (e.target.value === 'adult') {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'adult') {
                 adultForm.style.display = 'block';
                 minorForm.style.display = 'none';
             } else {
@@ -39,19 +42,17 @@ async function handleCepInputAdult(e) {
     if (cep.length === 8) {
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            if (!response.ok) throw new Error('CEP não encontrado');
-            const data = await response.json();
-            if (data.erro) throw new Error('CEP inválido');
-
-            document.getElementById('logradouro-cliente-adulto').value = data.logradouro;
-            document.getElementById('bairro-cliente-adulto').value = data.bairro;
-            document.getElementById('cidade-cliente-adulto').value = data.localidade;
-            document.getElementById('estado-cliente-adulto').value = data.uf;
-            document.getElementById('numero-cliente-adulto').focus();
-
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.erro) {
+                    document.getElementById('logradouro-cliente-adulto').value = data.logradouro;
+                    document.getElementById('bairro-cliente-adulto').value = data.bairro;
+                    document.getElementById('cidade-cliente-adulto').value = data.localidade;
+                    document.getElementById('estado-cliente-adulto').value = data.uf;
+                }
+            }
         } catch (error) {
-            console.error("Erro ao buscar CEP:", error);
-            showNotification(error.message, 'error');
+            console.log('Erro ao buscar CEP:', error);
         }
     }
 }
@@ -61,19 +62,17 @@ async function handleCepInputMinor(e) {
     if (cep.length === 8) {
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            if (!response.ok) throw new Error('CEP não encontrado');
-            const data = await response.json();
-            if (data.erro) throw new Error('CEP inválido');
-
-            document.getElementById('logradouro-cliente-menor').value = data.logradouro;
-            document.getElementById('bairro-cliente-menor').value = data.bairro;
-            document.getElementById('cidade-cliente-menor').value = data.localidade;
-            document.getElementById('estado-cliente-menor').value = data.uf;
-            document.getElementById('numero-cliente-menor').focus();
-
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.erro) {
+                    document.getElementById('logradouro-cliente-menor').value = data.logradouro;
+                    document.getElementById('bairro-cliente-menor').value = data.bairro;
+                    document.getElementById('cidade-cliente-menor').value = data.localidade;
+                    document.getElementById('estado-cliente-menor').value = data.uf;
+                }
+            }
         } catch (error) {
-            console.error("Erro ao buscar CEP:", error);
-            showNotification(error.message, 'error');
+            console.log('Erro ao buscar CEP:', error);
         }
     }
 }
@@ -81,96 +80,79 @@ async function handleCepInputMinor(e) {
 function setupClientForms() {
     document.getElementById('form-novo-cliente-adulto').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newClient = {
-            id: db.nextClientId++,
-            type: 'adult',
-            name: document.getElementById('nome-cliente-adulto').value,
-            email: document.getElementById('email-cliente-adulto').value,
-            phone: document.getElementById('telefone-cliente-adulto').value,
-            birthDate: document.getElementById('data-nascimento-adulto').value,
-            gender: document.getElementById('genero-adulto').value,
-            cpf: document.getElementById('cpf-cliente-adulto').value,
-            rg: document.getElementById('rg-adulto').value,
-            naturalidade: document.getElementById('naturalidade-adulto').value,
-            estadoCivil: document.getElementById('estado-civil-adulto').value,
-            escolaridade: document.getElementById('escolaridade-adulto').value,
-            profissao: document.getElementById('profissao-adulto').value,
-            emergencyContact: document.getElementById('contato-emergencia-adulto').value,
-            cep: document.getElementById('cep-cliente-adulto').value,
-            address: document.getElementById('logradouro-cliente-adulto').value,
-            number: document.getElementById('numero-cliente-adulto').value,
-            complement: document.getElementById('complemento-cliente-adulto').value,
-            neighborhood: document.getElementById('bairro-cliente-adulto').value,
-            city: document.getElementById('cidade-cliente-adulto').value,
-            state: document.getElementById('estado-cliente-adulto').value,
-            observations: document.getElementById('observacoes-cliente-adulto').value,
-            appointments: []
-        };
         
-        // Usar sistema híbrido (Supabase + localStorage)
-        const result = await saveClientHybrid(newClient);
-        if (result.success) {
+        try {
+            const newClient = {
+                type: 'adult',
+                name: document.getElementById('nome-cliente-adulto').value,
+                birthDate: document.getElementById('data-nascimento-adulto').value,
+                gender: document.getElementById('genero-adulto').value,
+                cpf: document.getElementById('cpf-cliente-adulto').value,
+                rg: document.getElementById('rg-adulto').value,
+                email: document.getElementById('email-cliente-adulto').value,
+                phone: document.getElementById('telefone-cliente-adulto').value,
+                emergencyContact: document.getElementById('contato-emergencia-adulto').value,
+                address: document.getElementById('logradouro-cliente-adulto').value,
+                number: document.getElementById('numero-cliente-adulto').value,
+                complement: document.getElementById('complemento-cliente-adulto').value,
+                neighborhood: document.getElementById('bairro-cliente-adulto').value,
+                city: document.getElementById('cidade-cliente-adulto').value,
+                state: document.getElementById('estado-cliente-adulto').value,
+                observations: document.getElementById('observacoes-cliente-adulto').value
+            };
+            
+            // Salvar no Supabase
+            const result = await database.saveClient(newClient);
+            
             e.target.reset();
             renderClientList();
             switchTab('historico');
             
             // Mostrar notificação de sucesso
-            const notification = document.createElement('div');
-            notification.textContent = '✅ Cliente salvo com sucesso!';
-            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px; z-index: 10000;';
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        } else {
-            alert('Erro ao salvar cliente: ' + (result.error || 'Erro desconhecido'));
+            showNotification('✅ Cliente salvo com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao salvar cliente:', error);
+            showNotification('❌ Erro ao salvar cliente: ' + error.message, 'error');
         }
     });
 
     document.getElementById('form-novo-cliente-menor').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newClient = {
-            id: db.nextClientId++,
-            type: 'minor',
-            name: document.getElementById('nome-cliente-menor').value,
-            birthDate: document.getElementById('data-nascimento-menor').value,
-            gender: document.getElementById('genero-menor').value,
-            escola: document.getElementById('escola-menor').value,
-            tipoEscola: document.getElementById('tipo-escola-menor').value,
-            anoEscolar: document.getElementById('ano-escolar-menor').value,
-            nomePai: document.getElementById('nome-pai').value,
-            idadePai: document.getElementById('idade-pai').value,
-            profissaoPai: document.getElementById('profissao-pai').value,
-            telefonePai: document.getElementById('telefone-pai').value,
-            nomeMae: document.getElementById('nome-mae').value,
-            idadeMae: document.getElementById('idade-mae').value,
-            profissaoMae: document.getElementById('profissao-mae').value,
-            telefoneMae: document.getElementById('telefone-mae').value,
-            responsavelFinanceiro: document.getElementById('responsavel-financeiro').value,
-            outroResponsavel: document.getElementById('outro-responsavel').value,
-            cep: document.getElementById('cep-cliente-menor').value,
-            address: document.getElementById('logradouro-cliente-menor').value,
-            number: document.getElementById('numero-cliente-menor').value,
-            complement: document.getElementById('complemento-cliente-menor').value,
-            neighborhood: document.getElementById('bairro-cliente-menor').value,
-            city: document.getElementById('cidade-cliente-menor').value,
-            state: document.getElementById('estado-cliente-menor').value,
-            observations: document.getElementById('observacoes-cliente-menor').value,
-            appointments: []
-        };
-        // Usar sistema híbrido (Supabase + localStorage)
-        const result = await saveClientHybrid(newClient);
-        if (result.success) {
+        
+        try {
+            const newClient = {
+                type: 'minor',
+                name: document.getElementById('nome-cliente-menor').value,
+                birthDate: document.getElementById('data-nascimento-menor').value,
+                gender: document.getElementById('genero-menor').value,
+                escola: document.getElementById('escola-menor').value,
+                tipoEscola: document.getElementById('tipo-escola-menor').value,
+                anoEscolar: document.getElementById('ano-escolar-menor').value,
+                responsibleName: document.getElementById('nome-pai').value,
+                responsiblePhone: document.getElementById('telefone-pai').value,
+                address: document.getElementById('logradouro-cliente-menor').value,
+                number: document.getElementById('numero-cliente-menor').value,
+                complement: document.getElementById('complemento-cliente-menor').value,
+                neighborhood: document.getElementById('bairro-cliente-menor').value,
+                city: document.getElementById('cidade-cliente-menor').value,
+                state: document.getElementById('estado-cliente-menor').value,
+                observations: document.getElementById('observacoes-cliente-menor').value
+            };
+            
+            // Salvar no Supabase
+            const result = await database.saveClient(newClient);
+            
             e.target.reset();
             renderClientList();
             switchTab('historico');
             
             // Mostrar notificação de sucesso
-            const notification = document.createElement('div');
-            notification.textContent = '✅ Cliente salvo com sucesso!';
-            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px; z-index: 10000;';
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        } else {
-            alert('Erro ao salvar cliente: ' + (result.error || 'Erro desconhecido'));
+            showNotification('✅ Cliente salvo com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao salvar cliente:', error);
+            showNotification('❌ Erro ao salvar cliente: ' + error.message, 'error');
         }
     });
 }
@@ -222,12 +204,8 @@ function showEditClientModal() {
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-profissao">Profissão</label>
-                        <input type="text" id="edit-profissao" value="${client.profissao || ''}">
-                    </div>
-                    <div class="form-group">
                         <label for="edit-contato-emergencia">Contato de Emergência</label>
-                        <input type="text" id="edit-contato-emergencia" value="${client.contatoEmergencia || ''}">
+                        <input type="text" id="edit-contato-emergencia" value="${client.emergency_contact || ''}">
                     </div>
                 </div>
             </div>
@@ -235,28 +213,8 @@ function showEditClientModal() {
                 <h4>Endereço</h4>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-cep">CEP</label>
-                        <input type="text" id="edit-cep" value="${client.cep || ''}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group form-group-large">
-                        <label for="edit-logradouro">Logradouro</label>
-                        <input type="text" id="edit-logradouro" value="${client.address || ''}">
-                    </div>
-                    <div class="form-group form-group-small">
-                        <label for="edit-numero">Número</label>
-                        <input type="text" id="edit-numero" value="${client.number || ''}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-bairro">Bairro</label>
-                        <input type="text" id="edit-bairro" value="${client.neighborhood || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-cidade">Cidade</label>
-                        <input type="text" id="edit-cidade" value="${client.city || ''}">
+                        <label for="edit-address">Endereço</label>
+                        <input type="text" id="edit-address" value="${client.address || ''}">
                     </div>
                 </div>
             </div>
@@ -280,64 +238,12 @@ function showEditClientModal() {
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-escola">Escola</label>
-                        <input type="text" id="edit-escola" value="${client.escola || ''}">
+                        <label for="edit-responsible">Responsável</label>
+                        <input type="text" id="edit-responsible" value="${client.responsible_name || ''}">
                     </div>
                     <div class="form-group">
-                        <label for="edit-ano-escolar">Ano Escolar</label>
-                        <input type="text" id="edit-ano-escolar" value="${client.anoEscolar || ''}">
-                    </div>
-                </div>
-            </div>
-            <div class="edit-form-section">
-                <h4>Dados dos Pais</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-nome-pai">Nome do Pai</label>
-                        <input type="text" id="edit-nome-pai" value="${client.nomePai || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-telefone-pai">Telefone do Pai</label>
-                        <input type="tel" id="edit-telefone-pai" value="${client.telefonePai || ''}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-nome-mae">Nome da Mãe</label>
-                        <input type="text" id="edit-nome-mae" value="${client.nomeMae || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-telefone-mae">Telefone da Mãe</label>
-                        <input type="tel" id="edit-telefone-mae" value="${client.telefoneMae || ''}">
-                    </div>
-                </div>
-            </div>
-            <div class="edit-form-section">
-                <h4>Endereço</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-cep">CEP</label>
-                        <input type="text" id="edit-cep" value="${client.cep || ''}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group form-group-large">
-                        <label for="edit-logradouro">Logradouro</label>
-                        <input type="text" id="edit-logradouro" value="${client.address || ''}">
-                    </div>
-                    <div class="form-group form-group-small">
-                        <label for="edit-numero">Número</label>
-                        <input type="text" id="edit-numero" value="${client.number || ''}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-bairro">Bairro</label>
-                        <input type="text" id="edit-bairro" value="${client.neighborhood || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-cidade">Cidade</label>
-                        <input type="text" id="edit-cidade" value="${client.city || ''}">
+                        <label for="edit-responsible-phone">Telefone do Responsável</label>
+                        <input type="text" id="edit-responsible-phone" value="${client.responsible_phone || ''}">
                     </div>
                 </div>
             </div>
@@ -351,78 +257,42 @@ function showEditClientModal() {
         `;
     }
 
-    document.getElementById('modal-detalhes-cliente').style.display = 'none';
     document.getElementById('modal-editar-cliente').style.display = 'flex';
 }
 
-function saveClientChanges() {
-    const client = db.clients.find(c => c.id === window.currentClientId);
-    if (!client) return;
+async function saveClientChanges() {
+    try {
+        const clientId = window.currentClientId;
+        const updates = {
+            name: document.getElementById('edit-nome').value,
+            email: document.getElementById('edit-email')?.value,
+            phone: document.getElementById('edit-telefone')?.value,
+            cpf: document.getElementById('edit-cpf')?.value,
+            rg: document.getElementById('edit-rg')?.value,
+            emergencyContact: document.getElementById('edit-contato-emergencia')?.value,
+            address: document.getElementById('edit-address')?.value,
+            responsibleName: document.getElementById('edit-responsible')?.value,
+            responsiblePhone: document.getElementById('edit-responsible-phone')?.value,
+            observations: document.getElementById('edit-observacoes').value
+        };
 
-    const changes = [];
-    const originalClient = { ...client };
-
-    const fieldsToCheck = client.type === 'adult' 
-        ? ['nome', 'email', 'telefone', 'cpf', 'rg', 'profissao', 'contatoEmergencia', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'observacoes']
-        : ['nome', 'escola', 'anoEscolar', 'nomePai', 'telefonePai', 'nomeMae', 'telefoneMae', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'observacoes'];
-
-    fieldsToCheck.forEach(field => {
-        const element = document.getElementById(`edit-${field}`);
-        if (element) {
-            const newValue = element.value.trim();
-            const fieldMapping = {
-                'nome': 'name',
-                'email': 'email',
-                'telefone': 'phone',
-                'cpf': 'cpf',
-                'rg': 'rg',
-                'profissao': 'profissao',
-                'contato-emergencia': 'contatoEmergencia',
-                'escola': 'escola',
-                'ano-escolar': 'anoEscolar',
-                'nome-pai': 'nomePai',
-                'telefone-pai': 'telefonePai',
-                'nome-mae': 'nomeMae',
-                'telefone-mae': 'telefoneMae',
-                'cep': 'cep',
-                'logradouro': 'address',
-                'numero': 'number',
-                'bairro': 'neighborhood',
-                'cidade': 'city',
-                'observacoes': 'observations'
-            };
-            
-            const clientField = fieldMapping[field];
-            const oldValue = client[clientField] || '';
-            
-            if (newValue !== oldValue) {
-                changes.push({
-                    field: field,
-                    oldValue: oldValue,
-                    newValue: newValue
-                });
-                client[clientField] = newValue;
-            }
-        }
-    });
-
-    if (changes.length > 0) {
-        if (!client.changeHistory) {
-            client.changeHistory = [];
-        }
+        // Atualizar no Supabase
+        await database.updateClient(clientId, updates);
         
-        client.changeHistory.push({
-            id: db.nextChangeId++,
-            date: new Date().toISOString(),
-            changedBy: window.currentUser.name,
-            changes: changes
-        });
-        
-        saveDb();
+        // Atualizar dados locais para exibição
+        const clientIndex = db.clients.findIndex(c => c.id === clientId);
+        if (clientIndex !== -1) {
+            db.clients[clientIndex] = { ...db.clients[clientIndex], ...updates };
+        }
+
         document.getElementById('modal-editar-cliente').style.display = 'none';
-        showClientDetails(window.currentClientId);
-        showNotification('Dados do cliente atualizados com sucesso!', 'success');
-    } else {
-        showNotification('Nenhuma alteração foi feita.', 'info');
+        renderClientList();
+        showClientDetails(clientId);
+        
+        showNotification('✅ Cliente atualizado com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao atualizar cliente:', error);
+        showNotification('❌ Erro ao atualizar cliente: ' + error.message, 'error');
     }
 }

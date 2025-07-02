@@ -1,503 +1,348 @@
-// Hybrid Authentication System - Vercel Compatible
-// Sistema que funciona tanto local quanto na Vercel, com ou sem Supabase
+// Sistema de Autenticação - APENAS SUPABASE
+// Versão sem localStorage - usa sessionStorage para sessão
 
-// Verificar se Supabase está disponível (configurado no HTML)
-const isSupabaseAvailable = () => {
+import { database } from './supabase-database.js';
+
+// Log para debug
+const log = (message, data = null) => {
+    console.log(`🔐 [AUTH] ${message}`, data ? data : '');
+};
+
+// Verificar se Supabase está disponível
+const isSupabaseReady = () => {
     return window.SUPABASE_READY && window.supabase;
 };
 
-// Função auxiliar para logs de segurança Supabase
-const logSupabaseSecurity = async (event, details) => {
-    if (isSupabaseAvailable()) {
-        try {
-            const { data, error } = await window.supabase
-                .from('security_logs')
-                .insert({
-                    event_type: event,
-                    details,
-                    user_id: (await window.supabase.auth.getUser()).data.user?.id,
-                    timestamp: new Date().toISOString(),
-                    ip_address: 'localhost',
-                    user_agent: navigator.userAgent
-                });
-            
-            if (error) console.warn('Erro ao salvar log Supabase:', error);
-        } catch (err) {
-            console.warn('Erro no log Supabase:', err);
+// ============= GESTÃO DE SESSÃO =============
+
+// Salvar sessão do usuário (sessionStorage - apagado ao fechar aba)
+const saveUserSession = (userData) => {
+    try {
+        sessionStorage.setItem('currentUser', JSON.stringify(userData));
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('loginTime', new Date().toISOString());
+        log('Sessão salva', userData.username);
+    } catch (error) {
+        log('Erro ao salvar sessão', error.message);
+    }
+};
+
+// Obter sessão atual do usuário
+const getCurrentUserSession = () => {
+    try {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+        const userDataStr = sessionStorage.getItem('currentUser');
+        
+        if (!isLoggedIn || !userDataStr) {
+            return null;
         }
+        
+        const userData = JSON.parse(userDataStr);
+        return userData;
+    } catch (error) {
+        log('Erro ao recuperar sessão', error.message);
+        return null;
     }
 };
 
-// Usuários locais do sistema (sempre funcionam)
-const LOCAL_USERS = {
-    // COORDENADORES
-    'coord@clinica.com': { 
-        password: 'coord123', 
-        role: 'coordinator', 
-        name: 'Dr. Ana Silva', 
-        permissions: ['all'],
-        active: true 
-    },
-    'coordenador': { 
-        password: '123456', 
-        role: 'coordinator', 
-        name: 'Coordenador Principal', 
-        permissions: ['all'],
-        active: true 
-    },
-    'admin@neuropsico.com': { 
-        password: 'admin2025', 
-        role: 'coordinator', 
-        name: 'Administrador Sistema', 
-        permissions: ['all'],
-        active: true 
-    },
-
-    // FUNCIONÁRIOS
-    'func@clinica.com': { 
-        password: 'func123', 
-        role: 'staff', 
-        name: 'Dra. Maria Santos', 
-        permissions: ['clients', 'schedule', 'reports'],
-        active: true 
-    },
-    'funcionario': { 
-        password: '123456', 
-        role: 'staff', 
-        name: 'Funcionário 1', 
-        permissions: ['clients', 'schedule', 'reports'],
-        active: true 
-    },
-    'staff@neuropsico.com': { 
-        password: 'staff2025', 
-        role: 'staff', 
-        name: 'Equipe Clínica', 
-        permissions: ['clients', 'schedule', 'reports'],
-        active: true 
-    },
-
-    // ESTAGIÁRIOS
-    'estagiario': { 
-        password: '123456', 
-        role: 'intern', 
-        name: 'João Oliveira', 
-        permissions: ['schedule', 'my_clients'],
-        active: true 
-    },
-    'intern@clinica.com': { 
-        password: 'intern123', 
-        role: 'intern', 
-        name: 'Estagiário Junior', 
-        permissions: ['schedule', 'my_clients'],
-        active: true 
-    },
-    'estagiario@neuropsico.com': { 
-        password: 'est2025', 
-        role: 'intern', 
-        name: 'Estagiário Sistema', 
-        permissions: ['schedule', 'my_clients'],
-        active: true 
+// Limpar sessão do usuário
+const clearUserSession = () => {
+    try {
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('loginTime');
+        log('Sessão limpa');
+    } catch (error) {
+        log('Erro ao limpar sessão', error.message);
     }
 };
 
-// Controle de tentativas de login
-let loginAttempts = JSON.parse(localStorage.getItem('loginAttempts') || '{}');
-export let currentUser = null;
+// ============= AUTENTICAÇÃO =============
 
-// Função de login híbrida (Supabase + Local)
+// Sistema de tentativas de login (em memória)
+let loginAttempts = {};
+
+// Verificar bloqueio por tentativas
+const isBlocked = (username) => {
+    const attempts = loginAttempts[username] || { count: 0, lastAttempt: 0 };
+    const now = Date.now();
+    const timeDiff = now - attempts.lastAttempt;
+    
+    // Resetar contagem após 15 minutos
+    if (timeDiff > 15 * 60 * 1000) {
+        attempts.count = 0;
+    }
+    
+    // Bloquear após 5 tentativas por 15 minutos
+    if (attempts.count >= 5 && timeDiff < 15 * 60 * 1000) {
+        const remainingTime = Math.ceil((15 * 60 * 1000 - timeDiff) / (60 * 1000));
+        throw new Error(`Muitas tentativas de login. Tente novamente em ${remainingTime} minutos.`);
+    }
+    
+    return false;
+};
+
+// Registrar tentativa de login
+const recordLoginAttempt = (username, success = false) => {
+    if (!loginAttempts[username]) {
+        loginAttempts[username] = { count: 0, lastAttempt: 0 };
+    }
+    
+    if (success) {
+        loginAttempts[username].count = 0;
+    } else {
+        loginAttempts[username].count++;
+        loginAttempts[username].lastAttempt = Date.now();
+    }
+};
+
+// Função principal de login
 export async function login(username, password) {
     try {
-        const now = Date.now();
-        const userKey = username.toLowerCase().trim();
-        
-        console.log('🔐 Tentativa de login:', userKey);
-        console.log('🟢 Supabase disponível:', isSupabaseAvailable());
-        
-        // Verificar bloqueio por tentativas excessivas
-        if (loginAttempts[userKey]) {
-            const attempts = loginAttempts[userKey];
-            if (attempts.count >= 5 && (now - attempts.lastAttempt) < 15 * 60 * 1000) {
-                showNotification('Usuário bloqueado por 15 minutos devido a tentativas excessivas', 'error');
-                return false;
-            }
-            
-            // Reset se passou o tempo de bloqueio
-            if ((now - attempts.lastAttempt) >= 15 * 60 * 1000) {
-                delete loginAttempts[userKey];
-                localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
-            }
+        if (!isSupabaseReady()) {
+            throw new Error('Sistema offline. Verifique sua conexão.');
         }
         
-        // PRIMEIRA TENTATIVA: Supabase (se disponível e configurado)
-        if (isSupabaseAvailable()) {
-            try {
-                console.log('🔄 Tentando login Supabase...');
-                const { data, error } = await window.supabase.auth.signInWithPassword({
-                    email: userKey,
-                    password: password
-                });
-                
-                if (error) {
-                    console.log('❌ Erro Supabase:', error.message);
-                    throw error;
-                }
-                
-                if (data.user) {
-                    // Login Supabase bem-sucedido
-                    currentUser = {
-                        uid: data.user.id,
-                        email: data.user.email,
-                        name: data.user.user_metadata?.name || data.user.email,
-                        role: data.user.user_metadata?.role || 'intern',
-                        permissions: data.user.user_metadata?.permissions || ['schedule'],
-                        loginTime: now,
-                        lastActivity: now,
-                        provider: 'supabase'
-                    };
-                    
-                    // Limpar tentativas de login
-                    if (loginAttempts[userKey]) {
-                        delete loginAttempts[userKey];
-                        localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
-                    }
-                    
-                    // Salvar sessão
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    localStorage.setItem('isLoggedIn', 'true');
-                    
-                    // Log de segurança
-                    await logSupabaseSecurity('login_success', {
-                        email: userKey,
-                        provider: 'supabase',
-                        timestamp: now
-                    });
-                    
-                    console.log('✅ Login Supabase bem-sucedido!');
-                    showNotification(`Bem-vindo(a), ${currentUser.name}!`, 'success');
-                    return true;
-                }
-            } catch (supabaseError) {
-                console.log('🔄 Supabase falhou, tentando login local...');
-                // Continua para tentativa local
-            }
-        } else {
-            console.log('🟡 Supabase não disponível, usando login local');
+        log('Iniciando processo de login', username);
+        
+        // Verificar bloqueio
+        isBlocked(username);
+        
+        // Autenticar via Supabase
+        const result = await database.authenticateUser(username, password);
+        
+        if (!result.success) {
+            recordLoginAttempt(username, false);
+            throw new Error('Credenciais inválidas');
         }
         
-        // SEGUNDA TENTATIVA: Usuários locais (sempre funciona)
-        const user = LOCAL_USERS[userKey];
-        if (user && user.password === password && user.active) {
-            console.log('✅ Login local bem-sucedido!');
-            
-            // Login local bem-sucedido
-            if (loginAttempts[userKey]) {
-                delete loginAttempts[userKey];
-                localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
-            }
-            
-            // Salvar sessão
-            const sessionData = {
-                username: userKey,
-                name: user.name,
-                role: user.role,
-                permissions: user.permissions,
-                loginTime: now,
-                lastActivity: now,
-                provider: 'local'
-            };
-            
-            currentUser = sessionData;
-            localStorage.setItem('currentUser', JSON.stringify(sessionData));
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            // Log de segurança
-            logSecurityEvent('login_success', {
-                username: userKey,
-                role: user.role,
-                provider: 'local',
-                timestamp: now
-            });
-            
-            showNotification(`Bem-vindo(a), ${user.name}!`, 'success');
-            return true;
-        }
+        const userData = result.data;
         
-        // AMBOS FALHARAM - registrar tentativa
-        console.log('❌ Login falhou para:', userKey);
-        
-        if (!loginAttempts[userKey]) {
-            loginAttempts[userKey] = { count: 0, lastAttempt: 0 };
-        }
-        
-        loginAttempts[userKey].count++;
-        loginAttempts[userKey].lastAttempt = now;
-        localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
-        
-        // Log de tentativa falhada
-        logSecurityEvent('login_failed', {
-            username: userKey,
-            attempts: loginAttempts[userKey].count,
-            timestamp: now
+        // Salvar sessão
+        saveUserSession({
+            id: userData.id,
+            username: userData.username,
+            email: userData.email,
+            name: userData.name,
+            role: userData.role,
+            loginTime: new Date().toISOString()
         });
         
-        const remainingAttempts = 5 - loginAttempts[userKey].count;
-        if (remainingAttempts > 0) {
-            showNotification(`Login inválido. Restam ${remainingAttempts} tentativas`, 'error');
-        } else {
-            showNotification('Usuário bloqueado por 15 minutos', 'error');
-        }
+        // Registrar tentativa bem-sucedida
+        recordLoginAttempt(username, true);
         
-        return false;
+        // Log de segurança
+        await database.saveSecurityLog({
+            eventType: 'user_login_success',
+            details: {
+                username: userData.username,
+                role: userData.role,
+                loginMethod: 'supabase'
+            },
+            ipAddress: await getClientIP(),
+            userAgent: navigator.userAgent
+        });
+        
+        log('Login realizado com sucesso', userData.username);
+        return {
+            success: true,
+            user: userData
+        };
         
     } catch (error) {
-        console.error('Erro no login:', error);
-        showNotification('Erro interno no sistema de login', 'error');
-        return false;
+        log('Erro no login', error.message);
+        
+        // Log de segurança para tentativa falhada
+        if (isSupabaseReady()) {
+            await database.saveSecurityLog({
+                eventType: 'user_login_failed',
+                details: {
+                    username: username,
+                    error: error.message,
+                    loginMethod: 'supabase'
+                },
+                ipAddress: await getClientIP(),
+                userAgent: navigator.userAgent
+            });
+        }
+        
+        return {
+            success: false,
+            error: error.message
+        };
     }
 }
 
 // Verificar se usuário está logado
-export function checkLogin() {
-    try {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        const userDataStr = localStorage.getItem('currentUser');
-        
-        if (!isLoggedIn || !userDataStr) {
-            return false;
-        }
-        
-        const userData = JSON.parse(userDataStr);
-        const now = Date.now();
-        
-        // Verificar timeout de sessão (24 horas)
-        if (now - userData.lastActivity > 24 * 60 * 60 * 1000) {
-            logout();
-            showNotification('Sessão expirada por inatividade', 'warning');
-            return false;
-        }
-        
-        // Atualizar última atividade
-        userData.lastActivity = now;
-        currentUser = userData;
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        return true;
-        
-    } catch (error) {
-        console.error('Erro ao verificar login:', error);
-        logout();
+export function isLoggedIn() {
+    const session = getCurrentUserSession();
+    if (!session) {
         return false;
     }
+    
+    // Verificar se a sessão não expirou (8 horas)
+    const loginTime = new Date(session.loginTime);
+    const now = new Date();
+    const diffHours = (now - loginTime) / (1000 * 60 * 60);
+    
+    if (diffHours > 8) {
+        log('Sessão expirada');
+        clearUserSession();
+        return false;
+    }
+    
+    return true;
 }
 
 // Obter usuário atual
 export function getCurrentUser() {
-    try {
-        if (currentUser) return currentUser;
-        
-        const userDataStr = localStorage.getItem('currentUser');
-        if (!userDataStr) return null;
-        
-        currentUser = JSON.parse(userDataStr);
-        return currentUser;
-    } catch (error) {
-        console.error('Erro ao obter usuário atual:', error);
+    if (!isLoggedIn()) {
         return null;
     }
+    
+    return getCurrentUserSession();
 }
 
-// Logout híbrido
-export async function logout() {
-    try {
-        const user = getCurrentUser();
-        
-        // Logout do Supabase se estava usando
-        if (user?.provider === 'supabase' && isSupabaseAvailable()) {
-            try {
-                await window.supabase.auth.signOut();
-            } catch (error) {
-                console.warn('Erro no logout Supabase:', error);
-            }
-        }
-        
-        // Log de logout
-        if (user) {
-            if (user.provider === 'supabase' && isSupabaseAvailable()) {
-                await logSupabaseSecurity('logout', {
-                    email: user.email,
-                    provider: 'supabase',
-                    sessionDuration: Date.now() - user.loginTime,
-                    timestamp: Date.now()
-                });
-            } else {
-                logSecurityEvent('logout', {
-                    username: user.username || user.email,
-                    role: user.role,
-                    provider: 'local',
-                    sessionDuration: Date.now() - user.loginTime,
-                    timestamp: Date.now()
-                });
-            }
-        }
-        
-        // Limpar dados de sessão
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('isLoggedIn');
-        
-        showNotification('Logout realizado com sucesso', 'info');
-        
-    } catch (error) {
-        console.error('Erro no logout:', error);
-    }
-}
-
-// Verificar permissão
-export function hasPermission(permission) {
-    const user = getCurrentUser();
-    if (!user) return false;
-    
-    // Coordenador tem todas as permissões
-    if (user.role === 'coordinator') return true;
-    
-    return user.permissions && user.permissions.includes(permission);
-}
-
-// Verificar se pode acessar recurso
-export function canAccessResource(resource, action = 'read') {
-    const user = getCurrentUser();
-    if (!user) return false;
-    
-    // Coordenador pode tudo
-    if (user.role === 'coordinator') return true;
-    
-    // Funcionário pode ver clientes e relatórios
-    if (user.role === 'staff') {
-        return ['clients', 'schedule', 'reports'].includes(resource);
-    }
-    
-    // Estagiário só pode ver agenda e seus pacientes
-    if (user.role === 'intern') {
-        return ['schedule', 'my_clients'].includes(resource);
-    }
-    
-    return false;
-}
-
-// Reset de senha (apenas Supabase)
-export async function resetPassword(email) {
-    try {
-        if (isSupabaseAvailable()) {
-            const { error } = await window.supabase.auth.resetPasswordForEmail(email);
-            if (error) throw error;
-            
-            showNotification('Email de reset enviado! Verifique sua caixa de entrada.', 'success');
-            return true;
-        } else {
-            showNotification('Reset de senha disponível apenas com Supabase configurado', 'warning');
-            return false;
-        }
-    } catch (error) {
-        console.error('Erro no reset de senha:', error);
-        showNotification('Erro ao enviar email de reset: ' + error.message, 'error');
+// Atualizar dados do usuário na sessão
+export function updateUserSession(updates) {
+    const currentUser = getCurrentUserSession();
+    if (!currentUser) {
         return false;
     }
+    
+    const updatedUser = { ...currentUser, ...updates };
+    saveUserSession(updatedUser);
+    return true;
 }
 
-// Criar usuário (apenas Supabase)
-export async function createUser(email, password, userData) {
+// Logout
+export async function logout() {
     try {
-        if (!isSupabaseAvailable()) {
-            throw new Error('Supabase não configurado');
+        const currentUser = getCurrentUserSession();
+        
+        if (currentUser && isSupabaseReady()) {
+            // Log de segurança
+            await database.saveSecurityLog({
+                eventType: 'user_logout',
+                details: {
+                    username: currentUser.username,
+                    role: currentUser.role,
+                    sessionDuration: calculateSessionDuration(currentUser.loginTime)
+                },
+                ipAddress: await getClientIP(),
+                userAgent: navigator.userAgent
+            });
         }
         
-        const { data, error } = await window.supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    name: userData.name,
-                    role: userData.role,
-                    permissions: userData.permissions
-                }
-            }
-        });
+        // Limpar sessão
+        clearUserSession();
         
-        if (error) throw error;
-        
-        showNotification('Usuário criado com sucesso!', 'success');
-        return data.user;
+        log('Logout realizado');
+        return { success: true };
         
     } catch (error) {
-        console.error('Erro ao criar usuário:', error);
-        showNotification('Erro ao criar usuário: ' + error.message, 'error');
-        return null;
+        log('Erro no logout', error.message);
+        // Limpar sessão mesmo com erro
+        clearUserSession();
+        return { success: false, error: error.message };
     }
 }
 
-// Função auxiliar para logs de segurança (local)
-function logSecurityEvent(event, data) {
+// ============= AUTORIZAÇÃO =============
+
+// Verificar se usuário tem permissão para uma função
+export function hasPermission(requiredRole) {
+    const user = getCurrentUser();
+    if (!user) {
+        return false;
+    }
+    
+    const roleHierarchy = {
+        'coordenador': 3,
+        'funcionario': 2,
+        'estagiario': 1
+    };
+    
+    const userLevel = roleHierarchy[user.role] || 0;
+    const requiredLevel = roleHierarchy[requiredRole] || 0;
+    
+    return userLevel >= requiredLevel;
+}
+
+// Verificar se é coordenador
+export function isCoordinator() {
+    return hasPermission('coordenador');
+}
+
+// Verificar se é funcionário ou superior
+export function isStaff() {
+    return hasPermission('funcionario');
+}
+
+// ============= UTILITÁRIOS =============
+
+// Obter IP do cliente (simplificado)
+async function getClientIP() {
     try {
-        const logs = JSON.parse(localStorage.getItem('security_logs') || '[]');
-        logs.push({
-            id: Date.now() + Math.random(),
-            event,
-            data,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent
-        });
-        
-        // Manter apenas os últimos 1000 logs
-        if (logs.length > 1000) {
-            logs.splice(0, logs.length - 1000);
-        }
-        
-        localStorage.setItem('security_logs', JSON.stringify(logs));
-    } catch (error) {
-        console.error('Erro ao salvar log de segurança:', error);
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch {
+        return 'unknown';
     }
 }
 
-// Função auxiliar para notificações
-function showNotification(message, type = 'info') {
-    if (window.showNotification) {
-        window.showNotification(message, type);
-    } else {
-        console.log(`[${type.toUpperCase()}] ${message}`);
-        
-        // Fallback: mostrar alert para erros importantes
-        if (type === 'error') {
-            alert(message);
-        }
+// Calcular duração da sessão
+function calculateSessionDuration(loginTime) {
+    const start = new Date(loginTime);
+    const end = new Date();
+    const diffMs = end - start;
+    const diffMins = Math.round(diffMs / (1000 * 60));
+    return `${diffMins} minutos`;
+}
+
+// ============= INICIALIZAÇÃO =============
+
+// Inicializar sistema de autenticação
+export function initializeAuth() {
+    log('Sistema de autenticação inicializado');
+    
+    // Verificar se há sessão válida
+    if (isLoggedIn()) {
+        const user = getCurrentUser();
+        log('Sessão válida encontrada', user.username);
+        return user;
     }
+    
+    return null;
 }
 
-// Exportar lista de usuários para compatibilidade
-export const getUsers = () => LOCAL_USERS;
-
-// Configurar listener de mudanças de auth (Supabase)
-if (isSupabaseAvailable()) {
-    window.supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT') {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('isLoggedIn');
-        }
-    });
+// Renovar sessão (estender tempo)
+export function renewSession() {
+    const user = getCurrentUserSession();
+    if (!user) {
+        return false;
+    }
+    
+    // Atualizar tempo de login
+    user.loginTime = new Date().toISOString();
+    saveUserSession(user);
+    
+    log('Sessão renovada');
+    return true;
 }
 
-// Inicialização
-console.log('🔐 Sistema de autenticação híbrido inicializado');
-console.log('🟢 Supabase:', isSupabaseAvailable() ? 'Disponível' : 'Não configurado');
-console.log('📋 Usuários locais disponíveis:', Object.keys(LOCAL_USERS));
+// ============= EXPORTAÇÕES LEGADAS (COMPATIBILIDADE) =============
 
-// Disponibilizar funções globalmente para debug
-window.authDebug = {
-    checkSupabase: isSupabaseAvailable,
-    getLocalUsers: () => LOCAL_USERS,
-    getCurrentUser,
-    checkLogin,
-    login,
-    logout
+// Para compatibilidade com código antigo
+window.getCurrentUser = getCurrentUser;
+window.isLoggedIn = isLoggedIn;
+window.hasPermission = hasPermission;
+
+// Estado de autenticação global
+window.AUTH_STATE = {
+    isInitialized: true,
+    usesSupabase: true,
+    usesLocalStorage: false
 };
 
