@@ -1567,34 +1567,21 @@
                 console.log('🟢 Supabase inicializado - URL:', supabaseUrl);
                 console.log('🔑 Key configurada:', supabaseAnonKey.substring(0, 20) + '...');
                 
-                // Verificar conectividade e autenticação
+                console.log('✅ Supabase pronto para uso!');
+                console.log('📊 Modo de dados compartilhados ativo');
+                
+                // Verificar status da sessão apenas para log (não bloquear)
                 try {
                     const { data: session, error } = await supabase.auth.getSession();
                     if (error) {
-                        console.warn('⚠️ Erro na sessão Supabase:', error.message);
-                        console.log('ℹ️ Isto é normal se ainda não estiver logado');
-                    }
-                    
-                    // Testar conexão com o banco
-                    const { data: test, error: testError } = await supabase
-                        .from('clients')
-                        .select('count')
-                        .limit(1);
-                    
-                    if (testError) {
-                        console.warn('⚠️ Erro ao conectar com o banco:', testError.message);
-                        console.log('🔄 Fallback para modo local ativado');
-                        window.SUPABASE_READY = false;
-                        window.USE_SUPABASE = false;
+                        console.log('ℹ️ Nenhuma sessão ativa:', error.message);
+                    } else if (session?.session?.user) {
+                        console.log('👤 Usuário logado:', session.session.user.email);
                     } else {
-                        console.log('✅ Supabase conectado e banco acessível!');
-                        console.log('📊 Modo de dados compartilhados ativo');
+                        console.log('👤 Nenhum usuário logado');
                     }
                 } catch (err) {
-                    console.warn('⚠️ Erro de conectividade Supabase:', err);
-                    console.log('🔄 Fallback para modo local ativado');
-                    window.SUPABASE_READY = false;
-                    window.USE_SUPABASE = false;
+                    console.log('ℹ️ Verificação de sessão:', err.message);
                 }
             } else {
                 // Configuração padrão (modo local)

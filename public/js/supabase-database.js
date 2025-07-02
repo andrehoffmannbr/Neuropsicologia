@@ -13,6 +13,24 @@ const isSupabaseReady = () => {
     return ready;
 };
 
+// Aguardar o Supabase ficar pronto (máximo 5 segundos)
+const waitForSupabase = async (maxWaitMs = 5000) => {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWaitMs) {
+        if (isSupabaseReady()) {
+            log('Supabase carregado com sucesso');
+            return true;
+        }
+        
+        // Aguardar 100ms antes de verificar novamente
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    log('Timeout: Supabase não carregou no tempo esperado');
+    return false;
+};
+
 // Obter ID do usuário atual
 const getCurrentUserId = () => {
     try {
@@ -32,6 +50,18 @@ export class SupabaseDatabase {
         
         this.supabase = window.supabase;
         log('Sistema Supabase inicializado - modo 100% online');
+    }
+    
+    // Método estático para inicialização assíncrona
+    static async create() {
+        log('Aguardando Supabase ficar disponível...');
+        
+        const ready = await waitForSupabase();
+        if (!ready) {
+            throw new Error('Supabase não está disponível. Sistema requer conexão online.');
+        }
+        
+        return new SupabaseDatabase();
     }
 
     // ============= CLIENTES =============
@@ -407,8 +437,104 @@ export class SupabaseDatabase {
     }
 }
 
-// Instância global do banco de dados
-export const database = new SupabaseDatabase();
+// Instância global do banco de dados (lazy loading)
+let databaseInstance = null;
+let databasePromise = null;
+
+// Obter instância do banco de dados (criar apenas quando necessário)
+export const getDatabase = async () => {
+    if (!databaseInstance && !databasePromise) {
+        log('Criando instância do banco de dados...');
+        databasePromise = SupabaseDatabase.create();
+        
+        try {
+            databaseInstance = await databasePromise;
+            databasePromise = null;
+        } catch (error) {
+            databasePromise = null;
+            throw error;
+        }
+    } else if (databasePromise) {
+        // Se já está sendo criado, aguardar
+        databaseInstance = await databasePromise;
+    }
+    
+    return databaseInstance;
+};
+
+// Para compatibilidade, criar objeto database com métodos assíncronos
+export const database = {
+    // Métodos proxy para compatibilidade (todos assíncronos)
+    async saveClient(clientData) {
+        const instance = await getDatabase();
+        return await instance.saveClient(clientData);
+    },
+    
+    async getClients() {
+        const instance = await getDatabase();
+        return await instance.getClients();
+    },
+    
+    async updateClient(clientId, updates) {
+        const instance = await getDatabase();
+        return await instance.updateClient(clientId, updates);
+    },
+    
+    async deleteClient(clientId) {
+        const instance = await getDatabase();
+        return await instance.deleteClient(clientId);
+    },
+    
+    async saveSchedule(scheduleData) {
+        const instance = await getDatabase();
+        return await instance.saveSchedule(scheduleData);
+    },
+    
+    async getSchedules() {
+        const instance = await getDatabase();
+        return await instance.getSchedules();
+    },
+    
+    async updateSchedule(scheduleId, updates) {
+        const instance = await getDatabase();
+        return await instance.updateSchedule(scheduleId, updates);
+    },
+    
+    async saveStockItem(stockData) {
+        const instance = await getDatabase();
+        return await instance.saveStockItem(stockData);
+    },
+    
+    async getStockItems() {
+        const instance = await getDatabase();
+        return await instance.getStockItems();
+    },
+    
+    async saveDailyNote(noteData) {
+        const instance = await getDatabase();
+        return await instance.saveDailyNote(noteData);
+    },
+    
+    async getDailyNotes() {
+        const instance = await getDatabase();
+        return await instance.getDailyNotes();
+    },
+    
+    async getUsers() {
+        const instance = await getDatabase();
+        return await instance.getUsers();
+    },
+    
+    async authenticateUser(username, password) {
+        const instance = await getDatabase();
+        return await instance.authenticateUser(username, password);
+    },
+    
+    async saveSecurityLog(logData) {
+        const instance = await getDatabase();
+        return await instance.saveSecurityLog(logData);
+    }
+};
 
 // Status da conexão
 export const getConnectionStatus = () => {
