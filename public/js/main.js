@@ -1,6 +1,6 @@
 // Main application entry point
 import { loadDb, saveDb, db, loadClientsHybrid, loadSchedulesHybrid, getDBStatus, initializeDatabase } from './database-supabase.js';
-import { login, logout, checkLogin, getCurrentUser } from './auth.js';
+import { login, logout, isLoggedIn, getCurrentUser } from './auth.js';
 import { showLoginScreen, showMainApp, switchTab, updateCurrentDate } from './ui.js';
 import { renderClientList, showClientDetails, addClientNote, addClientDocument, deleteClientDocument, renderMeusPacientes, renderClientReport } from './clients.js';
 import { renderSchedule, updateScheduleStatus, initializeCalendar, renderCalendar, saveEditedSchedule, cancelScheduleWithReason, reassignSchedule, populateAssignableUsers, saveReassignedSchedule } from './schedule.js'; // Import saveReassignedSchedule
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDb();
     
     // Check if user is already logged in
-    if (checkLogin()) {
+    if (isLoggedIn()) {
         showMainApp();
         initializeApp();
     } else {
@@ -97,16 +97,17 @@ function setupEventListeners() {
         const password = document.getElementById('password').value;
         
         try {
-            const loginSuccess = await login(username, password);
-            if (loginSuccess) {
+            const loginResult = await login(username, password);
+            if (loginResult.success) {
                 document.getElementById('form-login').reset();
                 showMainApp();
                 await initializeApp();
+            } else {
+                showNotification('❌ ' + loginResult.error, 'error');
             }
-            // Se falhar, a função login() já mostra a notificação de erro
         } catch (error) {
             console.error('Erro no login:', error);
-            showNotification('Erro interno no sistema de login', 'error');
+            showNotification('❌ Erro interno no sistema de login', 'error');
         }
     });
 
