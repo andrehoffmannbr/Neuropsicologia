@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 console.log('🔧 Iniciando build para Vercel...');
 
@@ -10,7 +11,7 @@ console.log('🔧 Iniciando build para Vercel...');
 const htmlPath = path.join(__dirname, 'public', 'index.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
-// Obter variáveis de ambiente (usando credenciais de exemplo até criar projeto real)
+// Obter variáveis de ambiente (agora com credenciais reais!)
 const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'your-anon-key';
 
@@ -62,9 +63,12 @@ fs.writeFileSync(path.join(__dirname, 'public', '_headers'), headersContent);
 console.log('🔒 Headers de segurança configurados');
 
 // Verificar se as credenciais foram configuradas
-if (supabaseUrl.includes('your-project')) {
+if (supabaseUrl.includes('ncjtfggvxvvasntozcqw')) {
+    console.log('✅ Credenciais REAIS do Supabase configuradas!');
+    console.log('🌐 Sistema funcionará em MODO ONLINE - dados compartilhados');
+} else if (supabaseUrl.includes('your-project')) {
     console.log('🟡 Usando credenciais de exemplo - sistema funcionará em modo LOCAL');
-    console.log('💡 Para dados compartilhados, crie um projeto Supabase real');
+    console.log('💡 Para dados compartilhados, configure suas credenciais reais no .env');
 } else {
-    console.log('✅ Credenciais Supabase configuradas corretamente');
+    console.log('✅ Credenciais Supabase configuradas');
 } 
