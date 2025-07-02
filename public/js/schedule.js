@@ -332,7 +332,7 @@ export function renderCalendar() {
         
         // Check if it has appointments (filtered by intern if applicable)
         let hasAppointments;
-        if (currentUser.role === 'intern') {
+        if (currentUser && currentUser.role === 'intern') {
             hasAppointments = db.schedules.some(schedule => 
                 schedule.date === dateString && schedule.assignedToUserId === currentUser.id
             );
@@ -427,6 +427,14 @@ export function populateAssignableUsers() {
     
     select.innerHTML = ''; // Clear existing options
     const currentUser = getCurrentUser();
+
+    // Verificar se currentUser existe
+    if (!currentUser) {
+        console.error('getCurrentUser() retornou null em populateAssignableUsers');
+        select.innerHTML = '<option value="">Erro: usuário não encontrado</option>';
+        select.disabled = true;
+        return;
+    }
 
     if (currentUser.role === 'intern') {
         // Interns can only assign to themselves

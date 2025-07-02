@@ -67,17 +67,22 @@ function initializeApp() {
 
 function setupEventListeners() {
     // Login form
-    document.getElementById('form-login').addEventListener('submit', (e) => {
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         
-        if (login(username, password)) {
-            document.getElementById('form-login').reset();
-            showMainApp();
-            initializeApp();
-        } else {
-            showNotification('Usuário ou senha inválidos!', 'error');
+        try {
+            const loginSuccess = await login(username, password);
+            if (loginSuccess) {
+                document.getElementById('form-login').reset();
+                showMainApp();
+                initializeApp();
+            }
+            // Se falhar, a função login() já mostra a notificação de erro
+        } catch (error) {
+            console.error('Erro no login:', error);
+            showNotification('Erro interno no sistema de login', 'error');
         }
     });
 
