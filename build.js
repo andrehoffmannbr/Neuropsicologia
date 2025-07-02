@@ -39,7 +39,13 @@ const configScript = `
         });
     </script>`;
 
-// Inserir script antes do Supabase SDK
+// Limpar configurações existentes primeiro
+html = html.replace(
+    /<!-- Configuração automática via build -->\s*<script>[\s\S]*?<\/script>/g, 
+    ''
+);
+
+// Inserir nova configuração antes do Supabase SDK
 html = html.replace(
     '<!-- Supabase SDK via CDN (com fallback para Vercel) -->',
     configScript + '\n    <!-- Supabase SDK via CDN (com fallback para Vercel) -->'

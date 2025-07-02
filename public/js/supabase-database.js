@@ -3,12 +3,20 @@
 
 // Verificar se estamos na Vercel com Supabase configurado
 const isSupabaseAvailable = () => {
+    console.log('🔍 Verificando disponibilidade do Supabase...');
+    console.log('- window.SUPABASE_READY:', window.SUPABASE_READY);
+    console.log('- window.supabase:', !!window.supabase);
+    console.log('- window.ENV?.SUPABASE_URL:', window.ENV?.SUPABASE_URL);
+    
     const hasSupabase = window.SUPABASE_READY && window.supabase;
     const hasValidConfig = window.ENV?.SUPABASE_URL && 
                           window.ENV.SUPABASE_URL.includes('supabase.co') && 
                           !window.ENV.SUPABASE_URL.includes('your-project');
     
-    return hasSupabase && hasValidConfig;
+    const isAvailable = hasSupabase && hasValidConfig;
+    console.log('- Supabase disponível:', isAvailable);
+    
+    return isAvailable;
 };
 
 // Log para debug
