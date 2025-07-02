@@ -1,18 +1,32 @@
-# 🏥 Sistema de Neuropsicologia - Firebase Admin SDK Integrado
+# 🧠 Sistema de Neuropsicologia - Híbrido Supabase + LocalStorage
 
-Sistema completo de gestão para clínicas de neuropsicologia com Firebase Admin SDK, autenticação segura, LGPD compliance e funcionalidades avançadas.
+Sistema completo de gestão para clínicas de neuropsicologia com **sistema híbrido inteligente** que funciona online e offline.
+
+## 🌐 Sistema Híbrido Inteligente
+
+### 🟢 **Modo Online (Supabase)** - DADOS COMPARTILHADOS
+- ✅ **Dados sincronizados** entre todos os usuários
+- ✅ **PostgreSQL na nuvem** com backup automático
+- ✅ **Acesso de qualquer lugar** com internet
+- ✅ **Colaboração em tempo real**
+- ✅ **Segurança enterprise** com RLS
+
+### 🟡 **Modo Offline (LocalStorage)** - DADOS LOCAIS
+- ✅ **Funciona sem internet** ou configuração
+- ✅ **Rápido e confiável** no navegador
+- ✅ **Dados privados** só no seu navegador
+- ✅ **Ideal para testes** e desenvolvimento
 
 ## 🚀 Características Principais
 
-- ✅ **Firebase Admin SDK** integrado
-- ✅ **Autenticação robusta** com Firebase Auth
-- ✅ **Banco de dados** Firestore + fallback localStorage
-- ✅ **Upload seguro** Firebase Storage
+- ✅ **Sistema híbrido inteligente** (Supabase + localStorage)
+- ✅ **Auto-detecção** de disponibilidade
+- ✅ **Fallback automático** para modo offline
+- ✅ **Interface responsiva** moderna
 - ✅ **LGPD compliance** completo
 - ✅ **Logs de segurança** detalhados
-- ✅ **Sistema híbrido** (local + cloud)
-- ✅ **API REST** completa
-- ✅ **Interface responsiva** moderna
+- ✅ **Deploy fácil** na Vercel
+- ✅ **Sem configuração** necessária para começar
 
 ---
 
