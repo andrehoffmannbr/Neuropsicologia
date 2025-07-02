@@ -10,6 +10,10 @@
       "destination": "/index.html"
     }
   ],
+  "env": {
+    "SUPABASE_URL": "https://wltzckgdtvlhdmhyozsb.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdHpja2dkdHZsaGRtaHlvenNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MTUzNjEsImV4cCI6MjA1MTM5MTM2MX0.Ojs7E9Yc4J2qxkTTGKUEdjFhS0JfXHZBK-yWAhwlDXY"
+  },
   "headers": [
     {
       "source": "/(.*)",

@@ -1,5 +1,5 @@
 // Form handling module
-import { db, saveDb } from './database.js';
+import { db, saveDb, saveClientHybrid } from './database.js';
 import { renderClientList } from './clients.js';
 import { switchTab } from './ui.js';
 import { showNotification } from './ui.js';
@@ -79,7 +79,7 @@ async function handleCepInputMinor(e) {
 }
 
 function setupClientForms() {
-    document.getElementById('form-novo-cliente-adulto').addEventListener('submit', (e) => {
+    document.getElementById('form-novo-cliente-adulto').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newClient = {
             id: db.nextClientId++,
@@ -95,7 +95,7 @@ function setupClientForms() {
             estadoCivil: document.getElementById('estado-civil-adulto').value,
             escolaridade: document.getElementById('escolaridade-adulto').value,
             profissao: document.getElementById('profissao-adulto').value,
-            contatoEmergencia: document.getElementById('contato-emergencia-adulto').value,
+            emergencyContact: document.getElementById('contato-emergencia-adulto').value,
             cep: document.getElementById('cep-cliente-adulto').value,
             address: document.getElementById('logradouro-cliente-adulto').value,
             number: document.getElementById('numero-cliente-adulto').value,
@@ -106,14 +106,26 @@ function setupClientForms() {
             observations: document.getElementById('observacoes-cliente-adulto').value,
             appointments: []
         };
-        db.clients.push(newClient);
-        saveDb();
-        e.target.reset();
-        renderClientList();
-        switchTab('historico');
+        
+        // Usar sistema híbrido (Supabase + localStorage)
+        const result = await saveClientHybrid(newClient);
+        if (result.success) {
+            e.target.reset();
+            renderClientList();
+            switchTab('historico');
+            
+            // Mostrar notificação de sucesso
+            const notification = document.createElement('div');
+            notification.textContent = '✅ Cliente salvo com sucesso!';
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px; z-index: 10000;';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } else {
+            alert('Erro ao salvar cliente: ' + (result.error || 'Erro desconhecido'));
+        }
     });
 
-    document.getElementById('form-novo-cliente-menor').addEventListener('submit', (e) => {
+    document.getElementById('form-novo-cliente-menor').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newClient = {
             id: db.nextClientId++,
@@ -144,11 +156,22 @@ function setupClientForms() {
             observations: document.getElementById('observacoes-cliente-menor').value,
             appointments: []
         };
-        db.clients.push(newClient);
-        saveDb();
-        e.target.reset();
-        renderClientList();
-        switchTab('historico');
+        // Usar sistema híbrido (Supabase + localStorage)
+        const result = await saveClientHybrid(newClient);
+        if (result.success) {
+            e.target.reset();
+            renderClientList();
+            switchTab('historico');
+            
+            // Mostrar notificação de sucesso
+            const notification = document.createElement('div');
+            notification.textContent = '✅ Cliente salvo com sucesso!';
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px; z-index: 10000;';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } else {
+            alert('Erro ao salvar cliente: ' + (result.error || 'Erro desconhecido'));
+        }
     });
 }
 

@@ -1,4 +1,6 @@
-// Database module for neuropsychology system
+// Database module for neuropsychology system - Integração com Supabase
+import { hybridDB, getConnectionStatus } from './supabase-database.js';
+
 export const db = {
     clients: [],
     appointments: [],
@@ -47,7 +49,12 @@ export const db = {
 };
 
 export function saveDb() {
+    // Salvar localmente sempre (para compatibilidade)
     localStorage.setItem('gestaoClientesDb', JSON.stringify(db));
+    
+    // Se Supabase disponível, mostrar status da conexão
+    const status = getConnectionStatus();
+    console.log(`💾 Dados salvos (Modo: ${status.mode})`);
 }
 
 export function loadDb() {
@@ -155,4 +162,115 @@ export function loadDb() {
 
         saveDb(); // Save the initial state with only users, anamnesis, and sample stock
     }
+}
+
+// ============= NOVAS FUNÇÕES COM SUPABASE =============
+
+// Salvar cliente usando sistema híbrido
+export async function saveClientHybrid(clientData) {
+    const result = await hybridDB.saveClient(clientData);
+    if (result.success) {
+        // Atualizar array local para compatibilidade
+        db.clients.push({
+            id: result.data.id,
+            name: clientData.name,
+            birthDate: clientData.birthDate,
+            gender: clientData.gender,
+            cpf: clientData.cpf,
+            rg: clientData.rg,
+            address: clientData.address,
+            phone: clientData.phone,
+            email: clientData.email,
+            emergencyContact: clientData.emergencyContact,
+            medicalHistory: clientData.medicalHistory,
+            currentMedications: clientData.currentMedications,
+            observations: clientData.observations,
+            responsibleName: clientData.responsibleName,
+            responsibleCpf: clientData.responsibleCpf,
+            responsiblePhone: clientData.responsiblePhone,
+            relationship: clientData.relationship,
+            createdAt: new Date().toISOString()
+        });
+        saveDb();
+    }
+    return result;
+}
+
+// Carregar clientes usando sistema híbrido
+export async function loadClientsHybrid() {
+    const result = await hybridDB.getClients();
+    if (result.success) {
+        // Atualizar array local para compatibilidade
+        db.clients = result.data.map(client => ({
+            id: client.id,
+            name: client.name,
+            birthDate: client.birth_date || client.birthDate,
+            gender: client.gender,
+            cpf: client.cpf,
+            rg: client.rg,
+            address: client.address,
+            phone: client.phone,
+            email: client.email,
+            emergencyContact: client.emergency_contact || client.emergencyContact,
+            medicalHistory: client.medical_history || client.medicalHistory,
+            currentMedications: client.current_medications || client.currentMedications,
+            observations: client.observations,
+            responsibleName: client.responsible_name || client.responsibleName,
+            responsibleCpf: client.responsible_cpf || client.responsibleCpf,
+            responsiblePhone: client.responsible_phone || client.responsiblePhone,
+            relationship: client.relationship,
+            createdAt: client.created_at || client.createdAt
+        }));
+        saveDb();
+    }
+    return result;
+}
+
+// Salvar agendamento usando sistema híbrido
+export async function saveScheduleHybrid(scheduleData) {
+    const result = await hybridDB.saveSchedule(scheduleData);
+    if (result.success) {
+        // Atualizar array local para compatibilidade
+        db.schedules.push({
+            id: result.data.id,
+            clientId: scheduleData.clientId,
+            date: scheduleData.date,
+            time: scheduleData.time,
+            serviceType: scheduleData.serviceType,
+            status: scheduleData.status || 'agendado',
+            assignedToUserId: scheduleData.assignedToUserId,
+            assignedToUserName: scheduleData.assignedToUserName,
+            observations: scheduleData.observations,
+            createdAt: new Date().toISOString()
+        });
+        saveDb();
+    }
+    return result;
+}
+
+// Carregar agendamentos usando sistema híbrido
+export async function loadSchedulesHybrid() {
+    const result = await hybridDB.getSchedules();
+    if (result.success) {
+        // Atualizar array local para compatibilidade
+        db.schedules = result.data.map(schedule => ({
+            id: schedule.id,
+            clientId: schedule.client_id || schedule.clientId,
+            date: schedule.date,
+            time: schedule.time,
+            serviceType: schedule.service_type || schedule.serviceType,
+            status: schedule.status,
+            assignedToUserId: schedule.assigned_to_user_id || schedule.assignedToUserId,
+            assignedToUserName: schedule.assigned_to_user_name || schedule.assignedToUserName,
+            observations: schedule.observations,
+            createdAt: schedule.created_at || schedule.createdAt
+        }));
+        saveDb();
+    }
+    return result;
+}
+
+// Verificar status da conexão
+export function getDBStatus() {
+    return getConnectionStatus();
 }
