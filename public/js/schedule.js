@@ -1,5 +1,5 @@
 // Schedule management module
-import { db, saveDb } from './database.js';
+import { db, saveDb } from './database-supabase.js';
 import { getCurrentUser } from './auth.js';
 import { showNotification } from './ui.js';
 

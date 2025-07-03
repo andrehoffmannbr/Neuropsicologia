@@ -1,5 +1,5 @@
 // Intern management module
-import { db, saveDb } from './database.js';
+import { db, saveDb } from './database-supabase.js';
 import { showNotification } from './ui.js';
 import { getCurrentUser } from './auth.js';
 

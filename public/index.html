@@ -1504,23 +1504,57 @@
         </div>
     </div>
 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- Configuração automática via build -->
+    <script>
+        window.ENV = {
+            SUPABASE_URL: 'https://ncjtfggvxvvasntozcqw.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5janRmZ2d2eHZ2YXNudG96Y3F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0OTE3NDEsImV4cCI6MjA2NzA2Nzc0MX0.brzv2WhajL5o4ML16sYkCof_rgUfWN0RXQUQ72Yjil8',
+            BUILD_TIME: '2025-07-02T23:32:55.782Z',
+            ENVIRONMENT: 'production',
+            IS_VERCEL: true
+        };
+        console.log('🔧 Configuração de produção carregada:', {
+            url: window.ENV.SUPABASE_URL,
+            key: window.ENV.SUPABASE_ANON_KEY ? window.ENV.SUPABASE_ANON_KEY.substring(0, 20) + '...' : 'Não configurada',
+            buildTime: window.ENV.BUILD_TIME,
+            environment: window.ENV.ENVIRONMENT
+        });
+    </script>
     <!-- Supabase SDK via CDN (com fallback para Vercel) -->
     <script type="module">
         try {
             // Tentar importar Supabase
             const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
             
-            // Configuração Supabase (obtida das variáveis de ambiente ou padrão)
-            const supabaseUrl = window.location.hostname === 'localhost' 
-                ? 'https://your-project.supabase.co'
-                : (window.ENV?.SUPABASE_URL || 'https://your-project.supabase.co');
-                
-            const supabaseAnonKey = window.location.hostname === 'localhost'
-                ? 'your-anon-key'
-                : (window.ENV?.SUPABASE_ANON_KEY || 'your-anon-key');
+            // Configuração Supabase (obtida das variáveis de ambiente injetadas pelo build.js)
+            const supabaseUrl = window.ENV?.SUPABASE_URL || 'https://your-project.supabase.co';
+            const supabaseAnonKey = window.ENV?.SUPABASE_ANON_KEY || 'your-anon-key';
+            
+            console.log('🔍 Verificando configuração Supabase...');
+            console.log('- URL:', supabaseUrl);
+            console.log('- Key:', supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : 'Não configurada');
+            console.log('- Environment:', window.ENV?.ENVIRONMENT || 'local');
+            
+            // Verificar se temos credenciais válidas (URLs que não sejam placeholders)
+            const hasValidCredentials = supabaseUrl.includes('supabase.co') && 
+                                       !supabaseUrl.includes('your-project') && 
+                                       supabaseAnonKey !== 'your-anon-key' &&
+                                       supabaseAnonKey.length > 50;
             
             // Inicializar Supabase se tiver credenciais válidas
-            if (supabaseUrl !== 'https://your-project.supabase.co' && supabaseAnonKey !== 'your-anon-key') {
+            if (hasValidCredentials) {
+                console.log('🟢 Credenciais válidas encontradas, inicializando Supabase...');
+                
                 const supabase = createClient(supabaseUrl, supabaseAnonKey);
                 
                 // Disponibilizar globalmente
@@ -1533,26 +1567,29 @@
                 console.log('🟢 Supabase inicializado - URL:', supabaseUrl);
                 console.log('🔑 Key configurada:', supabaseAnonKey.substring(0, 20) + '...');
                 
-                // Verificar conectividade
-                supabase.auth.getSession().then(({ data, error }) => {
+                console.log('✅ Supabase pronto para uso!');
+                console.log('📊 Modo de dados compartilhados ativo');
+                
+                // Verificar status da sessão apenas para log (não bloquear)
+                try {
+                    const { data: session, error } = await supabase.auth.getSession();
                     if (error) {
-                        console.warn('⚠️ Erro ao conectar Supabase:', error.message);
-                        console.log('🔄 Fallback para modo local ativado');
-                        window.SUPABASE_READY = false;
+                        console.log('ℹ️ Nenhuma sessão ativa:', error.message);
+                    } else if (session?.session?.user) {
+                        console.log('👤 Usuário logado:', session.session.user.email);
                     } else {
-                        console.log('✅ Supabase conectado com sucesso!');
+                        console.log('👤 Nenhum usuário logado');
                     }
-                }).catch(err => {
-                    console.warn('⚠️ Erro de conectividade Supabase:', err);
-                    console.log('🔄 Fallback para modo local ativado');
-                    window.SUPABASE_READY = false;
-                });
+                } catch (err) {
+                    console.log('ℹ️ Verificação de sessão:', err.message);
+                }
             } else {
                 // Configuração padrão (modo local)
+                console.log('🟡 Supabase não configurado ou credenciais inválidas');
+                console.log('📋 Sistema funcionando em modo local (localStorage)');
                 window.SUPABASE_READY = false;
                 window.USE_SUPABASE = false;
-                console.log('🟡 Supabase não configurado');
-                console.log('📋 Sistema funcionando em modo local');
+                window.supabase = null;
             }
         } catch (error) {
             // Fallback se CDN falhar
@@ -1568,10 +1605,19 @@
         window.SYSTEM_CONFIG = {
             supabaseReady: window.SUPABASE_READY || false,
             environment: window.location.hostname === 'localhost' ? 'development' : 'production',
-            fallbackMode: !window.SUPABASE_READY
+            fallbackMode: !window.SUPABASE_READY,
+            hasSupabaseConfig: window.ENV?.SUPABASE_URL ? true : false
         };
         
-        console.log('🔧 Configuração do sistema:', window.SYSTEM_CONFIG);
+        console.log('🔧 Configuração final do sistema:', window.SYSTEM_CONFIG);
+        
+        // Notificar status na interface
+        setTimeout(() => {
+            const statusMsg = window.SUPABASE_READY 
+                ? '🟢 Sistema conectado - dados compartilhados' 
+                : '🟡 Sistema local - dados no navegador';
+            console.log(statusMsg);
+        }, 1000);
     </script>
 
     <script type="importmap">

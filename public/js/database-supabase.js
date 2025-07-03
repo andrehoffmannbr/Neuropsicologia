@@ -237,4 +237,4 @@ export function getDBStatus() {
         totalDailyNotes: db.dailyNotes.length,
         totalUsers: db.users.length
     };
-}
+} 

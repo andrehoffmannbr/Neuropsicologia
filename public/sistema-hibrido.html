@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Híbrido - Online e Offline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .mode {
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid;
+        }
+        .online {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+        .offline {
+            background: #fff3cd;
+            border-color: #ff9800;
+        }
+        .mode h3 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        .pros, .cons {
+            margin: 15px 0;
+        }
+        .pros li {
+            color: #27ae60;
+            margin: 8px 0;
+        }
+        .cons li {
+            color: #e74c3c;
+            margin: 8px 0;
+        }
+        .flow {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+        }
+        .current-status {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #2196f3;
+        }
+        .steps {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .step {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        code {
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Sistema Híbrido: Online & Offline</h1>
+        
+        <div class="current-status">
+            <h2>📍 Status Atual do Sistema</h2>
+            <p><strong>Modo Ativo:</strong> <span id="current-mode">🔄 Verificando...</span></p>
+            <p><strong>Motivo:</strong> <span id="mode-reason">Analisando configuração...</span></p>
+        </div>
+
+        <h2>🤔 Por que um Sistema Híbrido?</h2>
+        <p>O sistema foi projetado para <strong>funcionar sempre</strong>, independente da conexão com a nuvem. Isso garante que você nunca perca acesso aos seus dados.</p>
+
+        <div class="comparison">
+            <div class="mode online">
+                <h3>🌐 MODO ONLINE (Supabase)</h3>
+                <div class="pros">
+                    <h4>✅ Vantagens:</h4>
+                    <ul>
+                        <li><strong>Dados compartilhados</strong> entre todos os usuários</li>
+                        <li><strong>Sincronização automática</strong> em tempo real</li>
+                        <li><strong>Backup na nuvem</strong> - nunca perde dados</li>
+                        <li><strong>Acesso de qualquer lugar</strong></li>
+                        <li><strong>Múltiplos usuários</strong> veem as mesmas informações</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Requisitos:</h4>
+                    <ul>
+                        <li>Projeto Supabase ativo</li>
+                        <li>Conexão com internet</li>
+                        <li>Configuração das credenciais</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mode offline">
+                <h3>💾 MODO OFFLINE (LocalStorage)</h3>
+                <div class="pros">
+                    <h4>✅ Vantagens:</h4>
+                    <ul>
+                        <li><strong>Funciona sem internet</strong></li>
+                        <li><strong>Rápido e confiável</strong></li>
+                        <li><strong>Sem dependências externas</strong></li>
+                        <li><strong>Dados privados</strong> - só você vê</li>
+                        <li><strong>Gratuito</strong> - sem custos</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Limitações:</h4>
+                    <ul>
+                        <li>Dados não compartilhados</li>
+                        <li>Só funciona neste navegador</li>
+                        <li>Pode perder dados se limpar navegador</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow">
+            <h3>🧠 Como o Sistema Decide?</h3>
+            <p>O sistema verifica automaticamente:</p>
+            <ol>
+                <li><strong>Existe projeto Supabase configurado?</strong></li>
+                <li><strong>O projeto está acessível?</strong></li>
+                <li><strong>As credenciais são válidas?</strong></li>
+            </ol>
+            <p>Se <strong>TODAS</strong> as condições forem atendidas → <strong>Modo Online</strong><br>
+               Se <strong>QUALQUER</strong> condição falhar → <strong>Modo Offline</strong></p>
+        </div>
+
+        <div class="steps">
+            <h3>🚀 Como Ativar o Modo Online?</h3>
+            
+            <div class="step">
+                <span class="emoji">1️⃣</span>
+                <strong>Criar conta no Supabase</strong><br>
+                Acesse <a href="https://app.supabase.com" target="_blank">app.supabase.com</a> e crie uma conta gratuita
+            </div>
+            
+            <div class="step">
+                <span class="emoji">2️⃣</span>
+                <strong>Criar novo projeto</strong><br>
+                Nome: <code>neuropsicologia-sistema</code><br>
+                Região: <code>South America (São Paulo)</code>
+            </div>
+            
+            <div class="step">
+                <span class="emoji">3️⃣</span>
+                <strong>Executar SQL Schema</strong><br>
+                Cole o conteúdo do arquivo <code>supabase-schema.sql</code> no SQL Editor
+            </div>
+            
+            <div class="step">
+                <span class="emoji">4️⃣</span>
+                <strong>Obter credenciais</strong><br>
+                Vá em Settings → API e copie a URL e anon key
+            </div>
+            
+            <div class="step">
+                <span class="emoji">5️⃣</span>
+                <strong>Configurar no sistema</strong><br>
+                Edite <code>build.js</code> e substitua as credenciais de exemplo
+            </div>
+            
+            <div class="step">
+                <span class="emoji">6️⃣</span>
+                <strong>Redeploy</strong><br>
+                Commit, push e redeploy na Vercel
+            </div>
+        </div>
+
+        <p style="text-align: center; margin-top: 40px;">
+            <a href="index.html" style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                🏠 Voltar ao Sistema
+            </a>
+            <a href="test-supabase.html" style="background: #e74c3c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-left: 10px;">
+                🧪 Testar Supabase
+            </a>
+        </p>
+    </div>
+
+    <script>
+        // Verificar modo atual
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentMode = document.getElementById('current-mode');
+            const modeReason = document.getElementById('mode-reason');
+            
+            // Verificar se temos credenciais válidas
+            const hasSupabase = window.ENV?.SUPABASE_URL && 
+                               window.ENV.SUPABASE_URL.includes('supabase.co') && 
+                               !window.ENV.SUPABASE_URL.includes('your-project');
+            
+            if (hasSupabase) {
+                currentMode.innerHTML = '🌐 MODO ONLINE (Supabase)';
+                currentMode.style.color = '#27ae60';
+                modeReason.innerHTML = 'Projeto Supabase configurado e acessível';
+            } else {
+                currentMode.innerHTML = '💾 MODO OFFLINE (LocalStorage)';
+                currentMode.style.color = '#f39c12';
+                modeReason.innerHTML = 'Projeto Supabase não configurado ou inacessível';
+            }
+        });
+    </script>
+</body>
+</html> 
