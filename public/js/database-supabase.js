@@ -167,8 +167,8 @@ export async function initializeDatabase() {
     try {
         console.log('🚀 Inicializando sistema de banco de dados...');
         
-        // Verificar conexão
-        const status = getConnectionStatus();
+        // Verificar conexão (aguarda Supabase estar pronto)
+        const status = await getConnectionStatus();
         if (!status.ready) {
             throw new Error('Supabase não está disponível. Sistema requer conexão online.');
         }

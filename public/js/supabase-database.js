@@ -536,12 +536,13 @@ export const database = {
     }
 };
 
-// Status da conexão
-export const getConnectionStatus = () => {
+// Status da conexão (aguardar Supabase se necessário)
+export const getConnectionStatus = async () => {
+    const ready = await waitForSupabase();
     return {
         isOnline: true,
         mode: 'Supabase',
-        ready: isSupabaseReady(),
+        ready: ready,
         url: window.ENV?.SUPABASE_URL || 'N/A'
     };
 };
