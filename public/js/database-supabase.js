@@ -1,7 +1,36 @@
 // Database module - APENAS SUPABASE
 // Versão sem localStorage - 100% online
 
-import { database, getConnectionStatus } from './supabase-database.js';
+import { database } from './supabase-database.js';
+
+// Aguardar o Supabase ficar pronto (máximo 5 segundos)
+const waitForSupabase = async (maxWaitMs = 5000) => {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWaitMs) {
+        if (window.SUPABASE_READY && window.supabase) {
+            console.log('🗄️ [DB] Supabase carregado com sucesso');
+            return true;
+        }
+        
+        // Aguardar 100ms antes de verificar novamente
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log('🗄️ [DB] Timeout: Supabase não carregou no tempo esperado');
+    return false;
+};
+
+// Verificar status da conexão
+const getConnectionStatus = async () => {
+    const ready = await waitForSupabase();
+    return {
+        isOnline: true,
+        mode: 'Supabase',
+        ready: ready,
+        url: window.ENV?.SUPABASE_URL || 'N/A'
+    };
+};
 
 // Dados em memória para cache e compatibilidade
 export const db = {
@@ -166,12 +195,22 @@ export async function saveDailyNote(noteData) {
 export async function initializeDatabase() {
     try {
         console.log('🚀 Inicializando sistema de banco de dados...');
+        console.log('🔍 Verificando se Supabase está disponível...');
         
         // Verificar conexão (aguarda Supabase estar pronto)
         const status = await getConnectionStatus();
+        console.log('📊 Status da conexão:', status);
+        
         if (!status.ready) {
+            console.error('❌ Supabase não está pronto:', {
+                supabaseReady: window.SUPABASE_READY,
+                supabaseObject: !!window.supabase,
+                environment: window.ENV
+            });
             throw new Error('Supabase não está disponível. Sistema requer conexão online.');
         }
+        
+        console.log('✅ Supabase está pronto! Carregando dados...');
         
         // Carregar todos os dados iniciais
         await Promise.all([
@@ -187,6 +226,12 @@ export async function initializeDatabase() {
         
     } catch (error) {
         console.error('❌ Erro ao inicializar banco de dados:', error);
+        console.error('🔍 Debug info:', {
+            supabaseReady: window.SUPABASE_READY,
+            supabaseObject: !!window.supabase,
+            env: window.ENV,
+            timestamp: new Date().toISOString()
+        });
         throw error;
     }
 }
@@ -227,8 +272,8 @@ export async function loadSchedulesHybrid() {
 }
 
 // Status do banco de dados
-export function getDBStatus() {
-    const status = getConnectionStatus();
+export async function getDBStatus() {
+    const status = await getConnectionStatus();
     return {
         ...status,
         totalClients: db.clients.length,
